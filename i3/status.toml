@@ -16,12 +16,6 @@ backlight_partial3 = " "
 backlight_full = " "
 
 [[block]]
-block = "custom"
-command = "~/settings/check_updates.sh"
-interval = 300
-
-
-[[block]]
 block = "weather"
 format = "{temp}°C {weather}, {wind}m/s {direction}"
 service = { name = "openweathermap", api_key = "82b3c5fede9070e99419dde454a2db96", city_id = "5969785", units = "metric" }
@@ -63,8 +57,8 @@ alert = 10.0
 
 [[block]]
 block = "cpu"
-interval = 2
-frequency = true
+interval = 3
+format = "{barchart} {utilization}% {frequency}GHz"
 
 [[block]]
 block = "memory"
@@ -92,16 +86,6 @@ block = "xrandr"
 icons = true
 resolution = true
 interval = 2
-
-[[block]]
-block = "temperature"
-collapsed = true
-interval = 10
-format = "{average}°C"
-good = 40
-idle = 50
-info = 60
-warning = 70
 
 [[block]]
 block = "battery"
