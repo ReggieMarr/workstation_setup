@@ -1,5 +1,5 @@
-""""""""""""
-" VIM PLUG "
+    """"""""""""
+    " VIM PLUG "
 """"""""""""
 if empty(glob('~/.vim/autoload/plug.vim'))
       silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -8,6 +8,7 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 endif
 
 call plug#begin('~/.vim/plugged')
+    Plug 'vim-airline/vim-airline'
     Plug 'autozimu/LanguageClient-neovim', {
         \ 'branch': 'next',
         \ 'do': 'bash install.sh',
@@ -32,24 +33,55 @@ call plug#begin('~/.vim/plugged')
     " (Optional) Multi-entry selection UI.
     Plug 'junegunn/fzf'
     "Plug 'SirVer/ultisnips'
-    "Plug 'honza/vim-snippets'
-    "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'honza/vim-snippets'
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'Shougo/echodoc.vim'
     Plug 'scrooloose/nerdcommenter'
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
-
+    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+    Plug 'arakashic/chromatica.nvim'
+    Plug 'critiqjo/lldb.nvim'
+    Plug 'majutsushi/tagbar'
+    Plug 'rust-lang/rust.vim'
+    Plug 'vim-syntastic/syntastic'
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
 " Open files in vertical horizontal split
+set cmdheight=2
+nmap <F8> :TagbarToggle<CR>
+let g:echodoc#enable_at_startup = 1
+let g:echodoc#type = 'virtual'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Chromatica
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Chromatica
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:chromatica#enable_at_startup=1
+
+let g:chromatica#libclang_path='/usr/lib/llvm-6.0/lib/libclang.so'
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Fuzzy
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <silent> <C-h> :call fzf#run({
     \   'right': winwidth('.') / 2,
     \   'sink':  'horizontal botright split',
     \   'height': '40%'})<CR>
-nnoremap <silent> <C-v> :call fzf#run({
-    \   'right': winwidth('.') / 2,
-    \   'sink':  'vertical botright split',
-    \   'height': '40%'})<CR>
+"nnoremap <silent> <C-v> :call fzf#run({
+"    \   'right': winwidth('.') / 2,
+"    \   'sink':  'vertical botright split',
+"    \   'height': '40%'})<CR>
 nnoremap <silent> <C-p> :FZF <CR>
 "nnoremap <silent> <C-p> :FZF <CR>
     "\   'right': winwidth('.') / 2,
@@ -347,6 +379,8 @@ set hidden
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
     \ 'python': ['/usr/local/bin/pyls'],
+    \ 'cpp' : ['clangd'],
+    \ 'c' : ['clangd'],
     \ }
 function SetLSPShortcuts()
   nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
@@ -378,8 +412,16 @@ let g:LanguageClient_useVirtualText = 0
 nnoremap <C-c> :y+
 nnoremap <C-f> :%s/
 nnoremap <C-o> :!
-nnoremap <C-j> :!
 nnoremap <F7> :! git rev-parse --abbrev-ref HEAD <CR>
+"Adjust current split
+nnoremap <S-A-Left> : vertical resize -2 <CR>
+nnoremap <S-A-Right> : vertical resize +2 <CR>
+nnoremap <S-A-Up> : resize +2 <CR>
+nnoremap <S-A-Down> : resize -2 <CR>
+nnoremap <C-\> : vsplit <CR>
+nnoremap <C-S-\> : split <CR>
+"nnoremap <C-k-w> : quit <CR>
+
 
 set ignorecase
 " get the notename

@@ -1,9 +1,9 @@
 [theme]
 name = "modern"
 [theme.overrides]
-#idle_bg = "#123456"
-#idle_fg = "#abcdef"
-#alternating_tint_bg = "#00000000"
+idle_bg = "#123456"
+idle_fg = "#abcdef"
+alternating_tint_bg = "#FFFFFFFF"
 
 [icons]
 name = "awesome"
@@ -15,10 +15,11 @@ backlight_partial2 = " "
 backlight_partial3 = " "
 backlight_full = " "
 
-[[block]]
-block = "weather"
-format = "{temp}°C {weather}, {wind}m/s {direction}"
-service = { name = "openweathermap", api_key = "82b3c5fede9070e99419dde454a2db96", city_id = "5969785", units = "metric" }
+
+#[[block]]
+#block = "weather"
+#format = "{temp}°C {weather}, {wind}m/s {direction}"
+#service = { name = "openweathermap", api_key = "82b3c5fede9070e99419dde454a2db96", city_id = "5969785", units = "metric" }
 
 [[block]]
 block = "time"
@@ -27,7 +28,7 @@ format = " %a %b %d,%l:%M%p"
 
 [[block]]
 block = "net"
-device = "wlp0s20f3"
+device = "wlp2s0"
 ssid = false
 bitrate = true
 ip = false
@@ -36,14 +37,13 @@ speed_down = false
 interval = 5
 
 [[block]]
-block = "music"
-player = "spotify"
-buttons = ["play", "next"]
-on_collapsed_click = "spotify"
-display_song = false
-
-[[block]]
-block = "sound"
+block = "net"
+device = "enp0s31f6"
+ssid = false
+ip = true
+speed_up = false
+speed_down = false
+interval = 5
 
 [[block]]
 block = "disk_space"
@@ -57,8 +57,8 @@ alert = 10.0
 
 [[block]]
 block = "cpu"
-interval = 3
-format = "{barchart} {utilization}% {frequency}GHz"
+interval = 2
+frequency = true
 
 [[block]]
 block = "memory"
@@ -74,18 +74,14 @@ critical_mem = 95
 critical_swap = 95
 
 [[block]]
-block = "nvidia_gpu"
-label = "Quadro P1000"
-show_memory = false
-show_temperature = false
-show_utilization = true
-interval = 1
-
-[[block]]
-block = "xrandr"
-icons = true
-resolution = true
-interval = 2
+block = "temperature"
+collapsed = true
+interval = 10
+format = "{average}°C"
+good = 40
+idle = 50
+info = 60
+warning = 70
 
 [[block]]
 block = "battery"
