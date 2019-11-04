@@ -1,5 +1,5 @@
-    """"""""""""
-    " VIM PLUG "
+""""""""""""
+" VIM PLUG "
 """"""""""""
 if empty(glob('~/.vim/autoload/plug.vim'))
       silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -20,41 +20,115 @@ call plug#begin('~/.vim/plugged')
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
 
-    " enable ncm2 for all buffers
-    autocmd BufEnter * call ncm2#enable_for_buffer()
-
-    " IMPORTANT: :help Ncm2PopupOpen for more information
-    set completeopt=noinsert,menuone,noselect
 
     " NOTE: you need to install completion sources to get completions. Check
     " our wiki page for a list of sources: https://github.com/ncm2/ncm2/wiki
     Plug 'ncm2/ncm2-bufword'
     Plug 'ncm2/ncm2-path'
+    "Plug 'ncm2/ncm2-jedi'
+    "Use this to drop type info/snippet support
+    Plug 'HansPinckaers/ncm2-jedi'
     " (Optional) Multi-entry selection UI.
     Plug 'junegunn/fzf'
-    "Plug 'SirVer/ultisnips'
+    Plug 'SirVer/ultisnips'
+    Plug 'aklt/plantuml-syntax'
+    Plug 'tyru/open-browser.vim'
+    Plug 'tyru/open-browser.vim'
+    "Plug 'weirongxu/plantuml-previewer.vim'
+    "This doesn't work, would be great if it did though
+    "Plug 'scrooloose/vim-slumlord'
+    Plug 'jiangmiao/auto-pairs'
     Plug 'honza/vim-snippets'
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     Plug 'Shougo/echodoc.vim'
     Plug 'scrooloose/nerdcommenter'
+    Plug 'davidhalter/jedi-vim'
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
+    "May want to switch to https://github.com/euclio/vim-markdown-composer later
     Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+    "With markdown viewer junegunn goyo and limelight might also be nice to have
+    Plug 'scrooloose/nerdtree'  " file list
+    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
     Plug 'arakashic/chromatica.nvim'
     Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
     Plug 'rust-lang/rust.vim'
     Plug 'vim-syntastic/syntastic'
+    Plug 'w0rp/ale'  " python linters
+    Plug 'dhruvasagar/vim-table-mode'
+    Plug 'ervandew/supertab'
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
 " Open files in vertical horizontal split
 set cmdheight=2
-nmap <F8> :TagbarToggle<CR>
+set wrapscan
+set smartcase
+set noswapfile
+set nobackup
+set noshowmode
+set noshowcmd
+set mouse=a  " change cursor per mode
+"set clipboard=unnamedplus
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#type = 'virtual'
+" path to your python
+let g:python3_host_prog = '/usr/bin/python3'
+let g:python_host_prog = '/usr/bin/python2'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For Chromatica
+" For ale
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ale options
+let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503'
+let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
+let g:ale_list_window_size = 4
+let g:ale_sign_column_always = 0
+let g:ale_open_list = 1
+let g:ale_keep_list_window_open = '1'
+
+" Options are in .pylintrc!
+highlight VertSplit ctermbg=253
+
+let g:ale_sign_error = '‼'
+let g:ale_sign_warning = '∙'
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = '0'
+let g:ale_lint_on_save = '0'
+nmap <silent> <C-M> <Plug>(ale_previous_wrap)
+nmap <silent> <C-m> <Plug>(ale_next_wrap)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Tag and Tree Toggle
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" toggle nerdtree on ctrl+n
+map <C-n> :NERDTreeToggle<CR>
+nmap <F8> :TagbarToggle<CR>
+map <C-t> :set nosplitright<CR>:TagbarToggle<CR>:set splitright<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Table formatter
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! s:isAtStartOfLine(mapping)
+  let text_before_cursor = getline('.')[0 : col('.')-1]
+  let mapping_pattern = '\V' . escape(a:mapping, '\')
+  let comment_pattern = '\V' . escape(substitute(&l:commentstring, '%s.*$', '', ''), '\')
+  return (text_before_cursor =~? '^' . ('\v(' . comment_pattern . '\v)?') . '\s*\v' . mapping_pattern . '\v$')
+endfunction
+
+inoreabbrev <expr> <bar><bar>
+          \ <SID>isAtStartOfLine('\|\|') ?
+          \ '<c-o>:TableModeEnable<cr><bar><space><bar><left><left>' : '<bar><bar>'
+inoreabbrev <expr> __
+          \ <SID>isAtStartOfLine('__') ?
+          \ '<c-o>:silent! TableModeDisable<cr>' : '__'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Util snippets
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+"let g:UltiSnipsExpandTrigger="<tab>"  " use <Tab> trigger autocompletion
+let g:UltiSnipsJumpForwardTrigger="<c-f>"
+let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Markdown previewer
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -62,7 +136,7 @@ set statusline+=%*
 let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Chromatica
@@ -89,25 +163,92 @@ nnoremap <silent> <C-p> :FZF <CR>
     "\   'height': '40%'})<CR>
 "nnoremap <C-p> :Files<Cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Jedi
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Disable Jedi-vim autocompletion and enable call-signatures options
+let g:jedi#auto_initialization = 1
+let g:jedi#completions_enabled = 0
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#smart_auto_mappings = 0
+let g:jedi#popup_on_dot = 0
+let g:jedi#completions_command = ""
+let g:jedi#show_call_signatures = "1"
+let g:jedi#show_call_signatures_delay = 0
+let g:jedi#use_tabs_not_buffers = 0
+let g:jedi#show_call_signatures_modes = 'i'  " ni = also in normal mode
+let g:jedi#enable_speed_debugging=0
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For NCM
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " a list of relative paths for compile_commands.json
 let g:ncm2_pyclang#database_path = ['compile_commands.json']
-    " suppress the annoying 'match x of y', 'The only match' and 'Pattern not
-    " found' messages
-    set shortmess+=c
+" suppress the annoying 'match x of y', 'The only match' and 'Pattern not
+" found' messages
+set shortmess+=c
 
-    " CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead.
-    inoremap <c-c> <ESC>
+" CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead.
+inoremap <c-c> <ESC>
 
-    " When the <Enter> key is pressed while the popup menu is visible, it only
-    " hides the menu. Use this mapping to close the menu and also start a new
-    " line.
-    inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
+" When the <Enter> key is pressed while the popup menu is visible, it only
+" hides the menu. Use this mapping to close the menu and also start a new
+" line.
+    " enable ncm2 for all buffers
+autocmd BufEnter * call ncm2#enable_for_buffer()
 
-    " Use <TAB> to select the popup menu:
-    inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+" IMPORTANT: :help Ncm2PopupOpen for more information
+set completeopt=noinsert,menuone
+set pumheight=5
+let ncm2#complete_length = [[1,1]]
+let ncm2#popup_delay = 5
+inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
+
+au FileType Markdown call ncm2#disable_for_buffer()
+" Use <TAB> to select the popup menu:
+	"function! CleverTab()
+	"   if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+	"      return "\<Tab>"
+	"   else
+	"      return "\<C-N>"
+	"   endif
+	"endfunction
+	"inoremap <Tab> <C-R>=CleverTab()<CR>
+"inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+"inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" LSP Stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Required for operations modifying multiple buffers like rename.
+set hidden
+
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+    \ 'python': ['~/.local/bin/pyls'],
+    \ 'cpp' : ['clangd'],
+    \ 'c' : ['clangd'],
+    \ }
+function SetLSPShortcuts()
+  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
+  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
+  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
+  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
+  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
+  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
+  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
+  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
+  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
+  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
+endfunction()
+
+augroup LSP
+  autocmd!
+  autocmd FileType cpp,c call SetLSPShortcuts()
+augroup END
+
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+"Hide in-line messages
+let g:LanguageClient_useVirtualText = 0
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Nerdcommenter
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -135,6 +276,7 @@ let g:NERDTrimTrailingWhitespace = 1
 
 " Enable NERDCommenterToggle to check all selected lines is commented or not
 let g:NERDToggleCheckAllLines = 1
+map '" call NERDCommenterToggle
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For dein.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -370,41 +512,6 @@ function! UpdateTags()
 endfunction
 autocmd BufWritePost *.cpp,*.h,*.c call UpdateTags()
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" LSP Stuff
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Required for operations modifying multiple buffers like rename.
-set hidden
-
-let g:LanguageClient_serverCommands = {
-    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-    \ 'python': ['/usr/local/bin/pyls'],
-    \ 'cpp' : ['clangd'],
-    \ 'c' : ['clangd'],
-    \ }
-function SetLSPShortcuts()
-  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
-  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
-  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
-  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
-  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
-  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
-  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
-  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
-  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
-endfunction()
-
-augroup LSP
-  autocmd!
-  autocmd FileType cpp,c call SetLSPShortcuts()
-augroup END
-
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
-"Hide in-line messages
-let g:LanguageClient_useVirtualText = 0
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Custom COMMANDS
