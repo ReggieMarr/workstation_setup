@@ -7,12 +7,14 @@ if empty(glob('~/.vim/autoload/plug.vim'))
       autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin('~/.vim/plugged')
+call plug#begin()
     Plug 'vim-airline/vim-airline'
-    Plug 'autozimu/LanguageClient-neovim', {
-        \ 'branch': 'next',
-        \ 'do': 'bash install.sh',
-        \ }
+    Plug 'neomake/neomake'
+    Plug 'vim-airline/vim-airline-themes'
+    "Plug 'autozimu/LanguageClient-neovim', {
+    "    \ 'branch': 'next',
+    "    \ 'do': 'bash install.sh',
+    "    \ }
 
     Plug 'racer-rust/vim-racer'
     "
@@ -33,7 +35,6 @@ call plug#begin('~/.vim/plugged')
     Plug 'SirVer/ultisnips'
     Plug 'aklt/plantuml-syntax'
     Plug 'tyru/open-browser.vim'
-    Plug 'tyru/open-browser.vim'
     "Plug 'weirongxu/plantuml-previewer.vim'
     "This doesn't work, would be great if it did though
     "Plug 'scrooloose/vim-slumlord'
@@ -43,6 +44,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'Shougo/echodoc.vim'
     Plug 'scrooloose/nerdcommenter'
     Plug 'davidhalter/jedi-vim'
+    "Needs nerdfonts to work properly
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
     "May want to switch to https://github.com/euclio/vim-markdown-composer later
@@ -50,12 +52,12 @@ call plug#begin('~/.vim/plugged')
     "With markdown viewer junegunn goyo and limelight might also be nice to have
     Plug 'scrooloose/nerdtree'  " file list
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
-    Plug 'arakashic/chromatica.nvim'
+    "Plug 'arakashic/chromatica.nvim'
     Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
     Plug 'rust-lang/rust.vim'
-    Plug 'vim-syntastic/syntastic'
-    Plug 'w0rp/ale'  " python linters
+    "Plug 'vim-syntastic/syntastic'
+    "Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
 call plug#end()
@@ -70,12 +72,39 @@ set nobackup
 set noshowmode
 set noshowcmd
 set mouse=a  " change cursor per mode
+let mapleader=" "
+let g:airline_powerline_fonts = 1
+let g:webdevicons_enable_airline_statusline = 1
+set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
+
+" Always show statusline
+set laststatus=2
+
+" Use 256 colours (Use this setting only if your terminal supports 256 colours)
+set t_Co=256
+"let g:airline#extensions#tabline#enabled = 1
+
 "set clipboard=unnamedplus
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#type = 'virtual'
 " path to your python
 let g:python3_host_prog = '/usr/bin/python3'
 let g:python_host_prog = '/usr/bin/python2'
+" ---------------- Vimscript file settings  {{{
+" open a split window to edit the vimrc file:
+nnoremap <leader>ev :split $MYVIMRC<cr>
+" source the vimrc file. (Run it):
+nnoremap <leader>sv :source $MYVIMRC<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For neomake
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:neomake_highlight_columns = 1
+let g:neomake_highlight_lines = 1
+
+hi NeomakeError gui=undercurl cterm=undercurl
+hi NeomakeWarning gui=underline cterm=underline
+au BufWritePost *.rs NeomakeProject cargo
+let g:airline#extensions#neomake#enabled = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -128,22 +157,27 @@ inoreabbrev <expr> __
 let g:UltiSnipsJumpForwardTrigger="<c-f>"
 let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Synatastic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"let g:syntastic_rust_checkers = ['cargo']
+"let g:rust_cargo_avoid_whole_workspace = 1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Markdown previewer
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-let g:syntastic_python_checkers = ['flake8']
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+"let g:syntastic_python_checkers = ['flake8']
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 0
+"let g:syntastic_check_on_open = 0
+"let g:syntastic_check_on_wq = 0
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Chromatica
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:chromatica#enable_at_startup=1
+let g:chromatica#enable_at_startup=0
 
-let g:chromatica#libclang_path='/usr/lib/llvm-6.0/lib/libclang.so'
+let g:chromatica#libclang_path='/usr/lib/llvm-8/lib/libclang.so'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Fuzzy
@@ -196,13 +230,21 @@ inoremap <c-c> <ESC>
 autocmd BufEnter * call ncm2#enable_for_buffer()
 
 " IMPORTANT: :help Ncm2PopupOpen for more information
-set completeopt=noinsert,menuone
+let g:SuperTabMappingForward = '<tab>'
+let g:SuperTabMappingBackward = '<s-tab>'
+let g:SuperTabDefaultCompletionType = "context"
+set completeopt=noinsert,menuone,preview
 set pumheight=5
 let ncm2#complete_length = [[1,1]]
 let ncm2#popup_delay = 5
 inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
 
 au FileType Markdown call ncm2#disable_for_buffer()
+au FileType Rust call ncm2#disable_for_buffer()
+inoremap <expr> <PageDown> pumvisible() ? "\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp> pumvisible() ? "\<C-p>" : "\<PageUp>"
+"inoremap <expr> <Down> pumvisible() ? "\<C-n>" : "\<Down>"
+"inoremap <expr> <Up> pumvisible() ? "\<C-p>" : "\<Up>"
 " Use <TAB> to select the popup menu:
 	"function! CleverTab()
 	"   if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
@@ -220,35 +262,39 @@ au FileType Markdown call ncm2#disable_for_buffer()
 " Required for operations modifying multiple buffers like rename.
 set hidden
 
-let g:LanguageClient_serverCommands = {
-    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-    \ 'python': ['~/.local/bin/pyls'],
-    \ 'cpp' : ['clangd'],
-    \ 'c' : ['clangd'],
-    \ }
-function SetLSPShortcuts()
-  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
-  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
-  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
-  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
-  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
-  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
-  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
-  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
-  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
-endfunction()
-
-augroup LSP
-  autocmd!
-  autocmd FileType cpp,c call SetLSPShortcuts()
-augroup END
-
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
-"Hide in-line messages
-let g:LanguageClient_useVirtualText = 0
+    "\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+"let g:LanguageClient_serverCommands = {
+"    \ 'rust': ['rls'],
+"    \ 'python': ['~/.local/bin/pyls'],
+"    \ 'cpp' : ['clangd'],
+"    \ 'c' : ['clangd'],
+"    \ }
+"function SetLSPShortcuts()
+"  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
+"  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
+"  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
+"  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
+"  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
+"  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
+"  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
+"  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
+"  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
+"  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
+"endfunction()
+"au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
+"au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
+"au FileType Rust g:LanguageClient#handle
+"
+"augroup LSP
+"  autocmd!
+"  autocmd FileType cpp,c call SetLSPShortcuts()
+"augroup END
+"
+"nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+""nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+"nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+""Hide in-line messages
+"let g:LanguageClient_useVirtualText = 0
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Nerdcommenter
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -278,9 +324,9 @@ let g:NERDTrimTrailingWhitespace = 1
 let g:NERDToggleCheckAllLines = 1
 map '" call NERDCommenterToggle
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For dein.vim
+" For deoplete
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_at_startup = 1
 "call dein#add('Shougo/deoplete.nvim')
 "if !has('nvim')
 "  call dein#add('roxma/nvim-yarp')
@@ -550,7 +596,7 @@ let g:racer_cmd = "/home/reggiemarr/.cargo/bin/racer"
 
 let g:racer_experimental_completer = 1
 
-au FileType rust nmap gd <Plug>(rust-def)
+au FileType rust nmap gd <Plug>(rust-def)<CR> :normal! m`<CR>
 au FileType rust nmap gs <Plug>(rust-def-split)
 au FileType rust nmap gx <Plug>(rust-def-vertical)
 au FileType rust nmap <leader>gd <Plug>(rust-doc)
