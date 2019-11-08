@@ -11,10 +11,10 @@ call plug#begin()
     Plug 'vim-airline/vim-airline'
     Plug 'neomake/neomake'
     Plug 'vim-airline/vim-airline-themes'
-    "Plug 'autozimu/LanguageClient-neovim', {
-    "    \ 'branch': 'next',
-    "    \ 'do': 'bash install.sh',
-    "    \ }
+    Plug 'autozimu/LanguageClient-neovim', {
+        \ 'branch': 'next',
+        \ 'do': 'bash install.sh',
+        \ }
 
     Plug 'racer-rust/vim-racer'
     "
@@ -30,9 +30,13 @@ call plug#begin()
     "Plug 'ncm2/ncm2-jedi'
     "Use this to drop type info/snippet support
     Plug 'HansPinckaers/ncm2-jedi'
+    "Plug '~/.cargo/bin/sk'
+    "Plug 'lotabout/skim.vim'
     " (Optional) Multi-entry selection UI.
     Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim'
     Plug 'SirVer/ultisnips'
+    Plug 'srstevenson/vim-picker'
     Plug 'aklt/plantuml-syntax'
     Plug 'tyru/open-browser.vim'
     "Plug 'weirongxu/plantuml-previewer.vim'
@@ -52,12 +56,12 @@ call plug#begin()
     "With markdown viewer junegunn goyo and limelight might also be nice to have
     Plug 'scrooloose/nerdtree'  " file list
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
-    "Plug 'arakashic/chromatica.nvim'
+    Plug 'arakashic/chromatica.nvim'
     Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
     Plug 'rust-lang/rust.vim'
     "Plug 'vim-syntastic/syntastic'
-    "Plug 'w0rp/ale'  " python linters
+    Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
 call plug#end()
@@ -86,7 +90,11 @@ set t_Co=256
 
 "set clipboard=unnamedplus
 let g:echodoc#enable_at_startup = 1
-let g:echodoc#type = 'virtual'
+"let g:echodoc#type = 'virtual'
+let g:echodoc#type = 'floating'
+" To use a custom highlight for the float window,
+" change Pmenu to your highlight group
+highlight link EchoDocFloat Pmenu
 " path to your python
 let g:python3_host_prog = '/usr/bin/python3'
 let g:python_host_prog = '/usr/bin/python2'
@@ -105,6 +113,16 @@ hi NeomakeError gui=undercurl cterm=undercurl
 hi NeomakeWarning gui=underline cterm=underline
 au BufWritePost *.rs NeomakeProject cargo
 let g:airline#extensions#neomake#enabled = 1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For picker
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:picker_custom_find_executable = 'rg'
+let g:picker_custom_find_flags = '. -n -g "!*.html"'
+"let g:picker_custom_find_flags = '--color never --files'
+let g:picker_split = 'topleft'
+let g:picker_height = 20
+let g:picker_selector_executable = 'fzf'
+let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -182,6 +200,22 @@ let g:chromatica#libclang_path='/usr/lib/llvm-8/lib/libclang.so'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Fuzzy
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Customize fzf colors to match your color scheme
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
 nnoremap <silent> <C-h> :call fzf#run({
     \   'right': winwidth('.') / 2,
     \   'sink':  'horizontal botright split',
@@ -190,11 +224,11 @@ nnoremap <silent> <C-h> :call fzf#run({
 "    \   'right': winwidth('.') / 2,
 "    \   'sink':  'vertical botright split',
 "    \   'height': '40%'})<CR>
-nnoremap <silent> <C-p> :FZF <CR>
-"nnoremap <silent> <C-p> :FZF <CR>
-    "\   'right': winwidth('.') / 2,
-    "\   'sink':  'vertical botright split',
-    "\   'height': '40%'})<CR>
+nnoremap <silent> <C-p> :call fzf#run({
+    \ 'source' : 'fd',
+    \ 'sink':  'e', 'right': '40%'})<CR>
+nnoremap <leader>f :Files<CR>
+nnoremap <leader>g :Rg<CR>
 "nnoremap <C-p> :Files<Cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Jedi
@@ -233,14 +267,14 @@ autocmd BufEnter * call ncm2#enable_for_buffer()
 let g:SuperTabMappingForward = '<tab>'
 let g:SuperTabMappingBackward = '<s-tab>'
 let g:SuperTabDefaultCompletionType = "context"
-set completeopt=noinsert,menuone,preview
+set completeopt=noinsert,menuone
 set pumheight=5
 let ncm2#complete_length = [[1,1]]
 let ncm2#popup_delay = 5
 inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
 
 au FileType Markdown call ncm2#disable_for_buffer()
-au FileType Rust call ncm2#disable_for_buffer()
+"au FileType Rust call ncm2#disable_for_buffer()
 inoremap <expr> <PageDown> pumvisible() ? "\<C-n>" : "\<PageDown>"
 inoremap <expr> <PageUp> pumvisible() ? "\<C-p>" : "\<PageUp>"
 "inoremap <expr> <Down> pumvisible() ? "\<C-n>" : "\<Down>"
@@ -263,12 +297,12 @@ inoremap <expr> <PageUp> pumvisible() ? "\<C-p>" : "\<PageUp>"
 set hidden
 
     "\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-"let g:LanguageClient_serverCommands = {
-"    \ 'rust': ['rls'],
-"    \ 'python': ['~/.local/bin/pyls'],
-"    \ 'cpp' : ['clangd'],
-"    \ 'c' : ['clangd'],
-"    \ }
+let g:LanguageClient_serverCommands = {
+    \ 'rust': ['rls'],
+    \ 'python': ['~/.local/bin/pyls'],
+    \ 'cpp' : ['clangd'],
+    \ 'c' : ['clangd'],
+    \ }
 "function SetLSPShortcuts()
 "  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
 "  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
@@ -281,20 +315,19 @@ set hidden
 "  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
 "  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
 "endfunction()
-"au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
-"au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
-"au FileType Rust g:LanguageClient#handle
-"
-"augroup LSP
-"  autocmd!
-"  autocmd FileType cpp,c call SetLSPShortcuts()
-"augroup END
-"
-"nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-""nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-"nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
-""Hide in-line messages
-"let g:LanguageClient_useVirtualText = 0
+au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
+au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
+
+augroup LSP
+  autocmd!
+  autocmd FileType cpp,c call SetLSPShortcuts()
+augroup END
+
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+"Hide in-line messages
+let g:LanguageClient_useVirtualText = 0
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Nerdcommenter
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -345,56 +378,20 @@ set softtabstop=4
 " Search details
 set incsearch
 set hlsearch
-" Do no wrap searching
-set nowrapscan
 " To aid the colorscheme...
 set t_Co=256
 " Create line numbers on the left side of vi, 6 digits worth
 set number
 set numberwidth=6
-" Set text wrapping at 80 columns
-set tw=80
+highlight Search ctermfg=5 ctermbg=10 guifg=Black guibg=Yellow
+" Set text wrapping at 120 (used to be 80) columns
+set tw=120
 " Indent to the tab positiion when  you cross over the 80 line limit.
 set smartindent
 " Leave a couple of lines at the top and bottom when scrolling
 set scrolloff=2
 " Give context on where you are in the file
 set ruler
-" wrapping is a problem more often than not.
-set nowrap
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" MAPPING
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Make 'Q' not annoyingly enter into ex edit mode!
-"nnoremap Q <nop>
-"nnoremap K <nop>
-
-" Always show a ctags list
-"nnoremap <C-]> g<C-]>
-
-" Window splitting (vertical and horizontal)
-"nnoremap <C-v> :vsp<CR>
-"nnoremap <C-h> :sp<CR>
-" Auto completion
-"imap <tab> <C-p>
-"if executable('ag')
-    " Use ag over grep
-    "set gepprg=ag\ --color \ -n \ -B 5 \ -A 5
-
-    " Use af in CtrlP for listing files. Lightning fast and respects .gitignore
-    "let g:ctrlp_user_command = 'ag %s -l --color -g ""'
-
-    " ag is fast enough that we don't need to cache
-    "let g"ctrlp_use_caching = 0
-"endif
-
-"let g:ycm_global_ycm_extra_conf = "~/Projects/workRequest/bugfixes/release/.ycm_extra_conf.py"
-
-" bind \ to grep short cut
-"command -nargs=+ -complete=file -bar Ag silent! <args>|cwindow|redraw!
-"nnoremap \ :Ag<SPACE>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " DOXYGEN
@@ -441,58 +438,14 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 highlight Folded       ctermfg=7   ctermbg=8
 highlight FoldColumn   ctermfg=7   ctermbg=8
-highlight Search       ctermfg=16  ctermbg=11
 highlight VertSplit    ctermfg=8   ctermbg=0
 highlight StatusLine   ctermfg=8   ctermbg=2
 highlight StatusLineNC ctermfg=8   ctermbg=60
 highlight LineNr       ctermfg=60
 highlight Comment      ctermfg=60
 highlight Number       ctermfg=202
-highlight Search       ctermfg=15  ctermbg=12
-highlight Todo         ctermfg=15  ctermbg=11
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" SYNTAX HIGHLIGHTING
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match pointer /\*[a-z,A-Z,0-9]*++/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight pointer term = NONE ctermfg=Yellow
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match privCtx /privCtx/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight privCtx term = NONE ctermfg=Yellow
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match annotate
-"\ /\/\*\* [\:A-Za-z0-9 \n\r\*\\\/]* \*\*\//
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight annotate
-"\ term=NONE ctermfg=8 ctermbg=2 cterm=bold
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match wescam /moduleSend\w*/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax keyword wescam
-"\ MSG_Q_ID msgQDelete msgQCreate msgQSend msgQReceive
-"\ moduleAddCmdQ moduleRemoveCmdQ moduleAddCmd moduleGetCmd moduleRemoveCmd
-"\ moduleAddCmdRespQ moduleRemoveCmdRespQ moduleAddCmdResp moduleAddCmdResp
-"\ moduleRemoveCmdResp
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight wescam term=NONE ctermfg=Yellow
-"
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match defining /#\(define\|undef\) \w*/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight defining term=NONE ctermfg=205
-"
-""syn match unimportant /moduleLogError(.*\n\=.*\n\=.*);/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match unimportant
-"\ /moduleLogError([a-zA-Z0-9-+><,\n \*"%.\\/&:?\[\]_\(\)]*);/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight unimportant term=NONE ctermfg=244
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match this /this/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp highlight this term=NONE ctermfg=3
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match Identifier /\w\+_t\ze\W/
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax match Identifier 'rtems_[a-z_]*\( \|(\)'
-"autocmd BufRead,BufNewFile *.c,*.h,*.cpp syntax keyword cSpecial
-"\ TRUE FALSE
-"\ UNITY UNITY_FLOAT UNITY_SHIFT
-"\ UNITY7 UNITY7_FLOAT UNITY7_SHIFT
-"\ UNITY23 UNITY23_FLOAT UNITY23_SHIFT
-"\ BIT_1 BIT_2 BIT_3 BIT_4 BIT_5 BIT_6 BIT_7 BIT_8
-"\ BIT_9 BIT_10 BIT_11 BIT_12 BIT_13 BIT_14 BIT_15
-"\ BIT_A BIT_B BIT_C BIT_D BIT_E BIT_F
-"\ BIT_16 BIT_17 BIT_18 BIT_19 BIT_20 BIT_21 BIT_22
-"\ BIT_23 BIT_24 BIT_25 BIT_26 BIT_27 BIT_28 BIT_29
-"\ BIT_30 BIT_31
+highlight Search       ctermfg=5  ctermbg=12
+highlight Todo         ctermfg=5  ctermbg=11
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -505,12 +458,12 @@ if has("autocmd")
 " autocmd BufRead,BufNewFile *.[ch] endif
 
 " Remove trailing whitepsaces for each line on save.
-" Highlight text that goes past the 80 line limit.
+" Highlight text that goes past the 121 line limit.
 augroup vimrc_autocmds
-" autocmd BufReadPre * setlocal foldmethod=syntax
-" autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
-  autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
-  autocmd BufEnter * match OverLength /\%81v.*/
+    "autocmd BufReadPre * setlocal foldmethod=syntax
+    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
+    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
+    autocmd BufEnter * match OverLength /\%121v.*/
 augroup END
 
 if has("autocmd")

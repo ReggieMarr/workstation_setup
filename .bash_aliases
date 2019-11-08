@@ -48,7 +48,8 @@ export PATH="$PATH:$GDP/skim/bin"
 # bash env agnostic exports
 #export FZF_DEFAULT_COMMAND
 export SC="$HOME/profile_config/customscripts/"
-export FZF_DEFAULT_COMMAND="fd --type file --color=always"
+alias fd='fdfind'
+export FZF_DEFAULT_COMMAND="fdfind --type file --color=always"
 export FZF_DEFAULT_OPTS="--reverse --inline-info --ansi --preview-window=up:58"
 export FZF_COMPLETION_TRIGGER=']]'
 export MANPATH="/home/linuxbrew/.linuxbrew/share/man:$MANPATH"
@@ -58,6 +59,8 @@ export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:$INFOPATH"
 alias orphan='& disown'
 alias fsearch='rg . -n -g "!*.html" | fzf --preview="source $SC/string2arg.sh; string2arg {}"'
 alias nfsearch='export vfile=$(fsearch);nvim +$(cut -d":" -f2 <<< $vfile) \
+    $(cut -d":" -f1 <<< $vfile)'
+alias plugfsearch='export vfile=$(fsearch);echo +$(cut -d":" -f2 <<< $vfile) \
     $(cut -d":" -f1 <<< $vfile)'
 alias vfsearch='export vfile=$(fsearch);vi +$(cut -d":" -f2 <<< $vfile) \
     $(cut -d":" -f1 <<< $vfile)'
@@ -90,7 +93,7 @@ alias gbit="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset
 alias s='subl'
 alias vi='nvim'
 alias cdg='cd $GDP'
-if [ "$TMUX" = "" ]; then tmux; fi
+if [ "$TMUX" = "" ]; then tmux attach; fi
 
 
 export BAT_THEME="OneHalfLight"
@@ -99,5 +102,7 @@ export BAT_THEME="OneHalfLight"
 function add_alias() {
  $1 >> ~/.bash_aliases
 }
-
+function say_hello() {
+    echo "Hello"
+}
 
