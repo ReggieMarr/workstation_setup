@@ -60,7 +60,7 @@ call plug#begin()
     Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
     Plug 'rust-lang/rust.vim'
-    "Plug 'vim-syntastic/syntastic'
+    ""Plug 'vim-syntastic/syntastic'
     Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
@@ -69,13 +69,15 @@ call plug#end()
 "colorscheme wal
 " Open files in vertical horizontal split
 set cmdheight=2
-set wrapscan
+"set wrapscan
 set smartcase
 set noswapfile
 set nobackup
 set noshowmode
 set noshowcmd
 set mouse=a  " change cursor per mode
+set nowrap
+set nonumber
 let mapleader=" "
 let g:airline_powerline_fonts = 1
 let g:webdevicons_enable_airline_statusline = 1
@@ -85,7 +87,12 @@ set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
 set laststatus=2
 
 " Use 256 colours (Use this setting only if your terminal supports 256 colours)
+if has("nvim")
+set termguicolors
+else
 set t_Co=256
+endif
+
 "let g:airline#extensions#tabline#enabled = 1
 
 "set clipboard=unnamedplus
@@ -106,11 +113,13 @@ nnoremap <leader>sv :source $MYVIMRC<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For neomake
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:neomake_highlight_columns = 1
+"let g:neomake_highlight_columns = 0
 let g:neomake_highlight_lines = 1
+let g:neomake_place_signs =0
 
-hi NeomakeError gui=undercurl cterm=undercurl
-hi NeomakeWarning gui=underline cterm=underline
+hi NeomakeError gui=undercurl guisp=Red cterm=undercurl ctermfg=1
+hi NeomakeWarning gui=underline guisp=Green cterm=underline ctermfg=1
+highlight clear SignColumn
 au BufWritePost *.rs NeomakeProject cargo
 let g:airline#extensions#neomake#enabled = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -127,6 +136,7 @@ let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_ar
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ale options
+let g:ale_disable_lsp = 1
 let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503'
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
 let g:ale_list_window_size = 4
@@ -317,6 +327,8 @@ let g:LanguageClient_serverCommands = {
 "endfunction()
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
+"Cannot use autocmd here
+let g:LanguageClient_diagnosticsEnable = 0
 
 augroup LSP
   autocmd!
@@ -381,11 +393,10 @@ set hlsearch
 " To aid the colorscheme...
 set t_Co=256
 " Create line numbers on the left side of vi, 6 digits worth
-set number
-set numberwidth=6
-highlight Search ctermfg=5 ctermbg=10 guifg=Black guibg=Yellow
+"set number
+"set numberwidth=6
 " Set text wrapping at 120 (used to be 80) columns
-set tw=120
+"set tw=120
 " Indent to the tab positiion when  you cross over the 80 line limit.
 set smartindent
 " Leave a couple of lines at the top and bottom when scrolling
@@ -444,8 +455,8 @@ highlight StatusLineNC ctermfg=8   ctermbg=60
 highlight LineNr       ctermfg=60
 highlight Comment      ctermfg=60
 highlight Number       ctermfg=202
-highlight Search       ctermfg=5  ctermbg=12
-highlight Todo         ctermfg=5  ctermbg=11
+highlight Search       ctermfg=1  ctermbg=5
+highlight Todo         ctermfg=1  ctermbg=11
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
