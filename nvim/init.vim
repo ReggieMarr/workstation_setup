@@ -38,7 +38,11 @@ call plug#begin()
     Plug 'SirVer/ultisnips'
     Plug 'srstevenson/vim-picker'
     Plug 'aklt/plantuml-syntax'
+    Plug 'ludovicchabant/vim-gutentags'
     Plug 'tyru/open-browser.vim'
+    "This blame would be nice but it makes things sooo slow
+    "Plug 'tveskag/nvim-blame-line'
+    Plug 'tpope/vim-fugitive'
     "Plug 'weirongxu/plantuml-previewer.vim'
     "This doesn't work, would be great if it did though
     "Plug 'scrooloose/vim-slumlord'
@@ -70,8 +74,8 @@ call plug#end()
 " Open files in vertical horizontal split
 set cmdheight=2
 set wrapscan
-set smartcase
 set noswapfile
+set ignorecase
 set nobackup
 set noshowmode
 set noshowcmd
@@ -79,6 +83,7 @@ let mapleader=" "
 let g:airline_powerline_fonts = 1
 let g:webdevicons_enable_airline_statusline = 1
 set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
+nnoremap <leader>n :execute "vspl" "~/notes/" . strftime('%d_%m_%Y') .".md"<CR>
 
 " Always show statusline
 set laststatus=2
@@ -103,6 +108,15 @@ nnoremap <leader>ev :split $MYVIMRC<cr>
 " source the vimrc file. (Run it):
 nnoremap <leader>sv :source $MYVIMRC<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For gutentags
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <C-[> :pop<CR>
+:set statusline+=%{gutentags#statusline()}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For fugitive
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <leader>b :Gblame
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For neomake
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:neomake_highlight_columns = 1
@@ -111,15 +125,20 @@ let g:neomake_highlight_lines = 1
 hi NeomakeError gui=undercurl cterm=undercurl
 hi NeomakeWarning gui=underline cterm=underline
 au BufWritePost *.rs NeomakeProject cargo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For airline
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline#extensions#neomake#enabled = 1
+let g:airline_section_z=''
+let g:airline_skip_empty_sections = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For picker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:picker_custom_find_executable = 'rg'
 let g:picker_custom_find_flags = '. -n -g "!*.html"'
 "let g:picker_custom_find_flags = '--color never --files'
-let g:picker_split = 'bottomleft'
-let g:picker_height = 50
+let g:picker_split = 'bo'
+let g:picker_height = 40
 let g:picker_selector_executable = 'fzf'
 let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
 nmap <unique> <leader>pe <Plug>(PickerEdit)
@@ -135,7 +154,17 @@ nmap <unique> <leader>ph <Plug>(PickerHelp)
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ale options
-let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503'
+let g:ale_linters = {'python': ['flake8', 'pylint']}
+let g:ale_linters_ignore = {'python': ['pylint']}
+"test_system.py:1:0: C0111 (missing-docstring) Missing module docstring
+"test_system.py:20:0: C0103 (invalid-name) Class name "Test_UDP_Sys_IF" doesn't conform to PascalCase naming style
+"test_system.py:20:0: C0111 (missing-docstring) Missing class docstring
+"test_system.py:21:4: C0111 (missing-docstring) Missing method docstring
+"test_system.py:21:4: R0914 (too-many-locals) Too many local variables (16/15)
+"test_system.py:21:4: R0201 (no-self-use) Method could be a function
+"test_system.py:20:0: R0903 (too-few-public-methods) Too few public methods (1/2)
+"test_system.py:47:4: C0103 (invalid-name) Constant name "test" doesn't conform to UPPER_CASE naming style
+let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503,E221,E203'
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
 let g:ale_list_window_size = 4
 let g:ale_sign_column_always = 0
@@ -145,12 +174,14 @@ let g:ale_set_loclist = 0
 
 " Options are in .pylintrc!
 highlight VertSplit ctermbg=253
+highlight ALEError cterm=undercurl gui=undercurl
+highlight ALEWarning cterm=underline gui=underline
 
 let g:ale_sign_error = '‼'
 let g:ale_sign_warning = '∙'
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
-let g:ale_lint_on_save = 0
+let g:ale_lint_on_save = 1
 nmap <silent> <C-M> <Plug>(ale_previous_wrap)
 nmap <silent> <C-m> <Plug>(ale_next_wrap)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -236,7 +267,7 @@ nnoremap <silent> <C-h> :call fzf#run({
 "    \   'height': '40%'})<CR>
 nnoremap <silent> <C-p> :call fzf#run({
     \ 'source' : 'fd',
-    \ 'sink':  'e', 'right': '40%'})<CR>
+    \ 'sink':  'e', 'bottom': '40%'})<CR>
 nnoremap <leader>f :Files<CR>
 nnoremap <leader>g :Rg<CR>
 "nnoremap <C-p> :Files<Cr>
@@ -309,11 +340,12 @@ inoremap <expr> <PageUp> pumvisible() ? "\<C-p>" : "\<PageUp>"
 set hidden
 
     "\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+"https://clang.llvm.org/extra/clangd/Installation.html
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rls'],
     \ 'python': ['~/.local/bin/pyls'],
-    \ 'cpp' : ['clangd'],
-    \ 'c' : ['clangd'],
+    \ 'cpp' : ['clangd', '-background-index',],
+    \ 'c' : ['clangd','-background-index',],
     \ }
 "function SetLSPShortcuts()
 "  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
@@ -330,10 +362,10 @@ let g:LanguageClient_serverCommands = {
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
 
-augroup LSP
-  autocmd!
-  autocmd FileType cpp,c call SetLSPShortcuts()
-augroup END
+"augroup LSP
+"  autocmd!
+"  autocmd FileType cpp,c call SetLSPShortcuts()
+"augroup END
 
 nnoremap <F5> :call LanguageClient_contextMenu()<CR>
 "nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
@@ -381,7 +413,10 @@ let g:deoplete#enable_at_startup = 1
 " SETS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 syntax on
-
+syntax enable
+if has("termguicolors")
+    set termguicolors
+endif
 "Convert tabs to spaces
 set expandtab
 set shiftwidth=4
@@ -393,11 +428,13 @@ set hlsearch
 " To aid the colorscheme...
 set t_Co=256
 " Create line numbers on the left side of vi, 6 digits worth
-set number
-set numberwidth=6
-highlight Search ctermfg=1 ctermbg=10 guifg=Black guibg=Yellow
+set nonumber
+"set relativenumber
+"set number
+"set numberwidth=6
 " Set text wrapping at 120 (used to be 80) columns
-set tw=120
+set nowrap
+"set tw=120
 " Indent to the tab positiion when  you cross over the 80 line limit.
 set smartindent
 " Leave a couple of lines at the top and bottom when scrolling
@@ -579,16 +616,16 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " COLORS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-highlight Folded       ctermfg=7   ctermbg=8
-highlight FoldColumn   ctermfg=7   ctermbg=8
-highlight VertSplit    ctermfg=8   ctermbg=0
-highlight StatusLine   ctermfg=8   ctermbg=2
-highlight StatusLineNC ctermfg=8   ctermbg=60
-highlight LineNr       ctermfg=60
-highlight Comment      ctermfg=60
-highlight Number       ctermfg=202
-highlight Search       ctermfg=5  ctermbg=12
-highlight Todo         ctermfg=5  ctermbg=11
+"highlight Folded       ctermfg=7   ctermbg=8
+"highlight FoldColumn   ctermfg=7   ctermbg=8
+"highlight VertSplit    ctermfg=8   ctermbg=0
+"highlight StatusLine   ctermfg=8   ctermbg=2
+"highlight StatusLineNC ctermfg=8   ctermbg=60
+"highlight LineNr       ctermfg=60
+"highlight Comment      ctermfg=60
+"highlight Number       ctermfg=202
+"highlight Search       ctermfg=0  ctermbg=12
+"highlight Todo         ctermfg=0  ctermbg=11
 
 " Invoke command. 'g' is for call graph, kinda.
 "nnoremap <silent> <Leader>g :call Cscope('3', expand('<cword>'))<CR>
