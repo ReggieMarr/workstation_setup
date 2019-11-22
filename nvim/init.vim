@@ -15,13 +15,11 @@ call plug#begin()
         \ 'branch': 'next',
         \ 'do': 'bash install.sh',
         \ }
-
     Plug 'racer-rust/vim-racer'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
-
 
     " NOTE: you need to install completion sources to get completions. Check
     " our wiki page for a list of sources: https://github.com/ncm2/ncm2/wiki
@@ -39,7 +37,6 @@ call plug#begin()
     Plug 'srstevenson/vim-picker'
     Plug 'aklt/plantuml-syntax'
     Plug 'tyru/open-browser.vim'
-    "Plug 'weirongxu/plantuml-previewer.vim'
     "This doesn't work, would be great if it did though
     "Plug 'scrooloose/vim-slumlord'
     Plug 'jiangmiao/auto-pairs'
@@ -136,6 +133,7 @@ let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_ar
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ale options
+
 let g:ale_disable_lsp = 1
 let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503'
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
@@ -235,7 +233,6 @@ nnoremap <silent> <C-h> :call fzf#run({
 "    \   'sink':  'vertical botright split',
 "    \   'height': '40%'})<CR>
 nnoremap <silent> <C-p> :call fzf#run({
-    \ 'source' : 'fd',
     \ 'sink':  'e', 'right': '40%'})<CR>
 nnoremap <leader>f :Files<CR>
 nnoremap <leader>g :Rg<CR>
