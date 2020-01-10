@@ -19,10 +19,10 @@ call plug#begin()
     Plug 'racer-rust/vim-racer'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
+    Plug 'm-pilia/vim-ccls'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
-
-
+    Plug 'CoatiSoftware/vim-sourcetrail'
     " NOTE: you need to install completion sources to get completions. Check
     " our wiki page for a list of sources: https://github.com/ncm2/ncm2/wiki
     Plug 'ncm2/ncm2-bufword'
@@ -30,6 +30,7 @@ call plug#begin()
     "Plug 'ncm2/ncm2-jedi'
     "Use this to drop type info/snippet support
     Plug 'HansPinckaers/ncm2-jedi'
+    Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
     "Plug '~/.cargo/bin/sk'
     "Plug 'lotabout/skim.vim'
     " (Optional) Multi-entry selection UI.
@@ -60,6 +61,8 @@ call plug#begin()
     "With markdown viewer junegunn goyo and limelight might also be nice to have
     Plug 'scrooloose/nerdtree'  " file list
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
+    "This could replace chromatica since it does not do its own analysis it just uses lsp
+    Plug 'jackguo380/vim-lsp-cxx-highlight'
     Plug 'arakashic/chromatica.nvim'
     Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
@@ -117,6 +120,21 @@ nnoremap <C-[> :pop<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <leader>b :Gblame
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For pdb
+""""""""""""""""""" Nvim python environment settings
+"if has('nvim')
+"  let g:python_host_prog='~/.virtualenvs/neovim2/bin/python'
+"  let g:python3_host_prog='~/.virtualenvs/neovim3/bin/python'
+"  " set the virtual env python used to launch the debugger
+"  let g:pudb_python='~/.virtualenvs/poweruser_tools/bin/python'
+"  " set the entry point (script) to use for pudb
+"  let g:pudb_entry_point='~/src/poweruser_tools/test/test_templates.py'
+"  " Unicode symbols work fine (nvim, iterm, tmux, nyovim tested)
+"  let g:pudb_breakpoint_symbol='☠'
+"endif
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For neomake
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:neomake_highlight_columns = 1
@@ -150,6 +168,11 @@ nmap <unique> <leader>p] <Plug>(PickerTag)
 nmap <unique> <leader>pw <Plug>(PickerStag)
 nmap <unique> <leader>po <Plug>(PickerBufferTag)
 nmap <unique> <leader>ph <Plug>(PickerHelp)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For SourceTrail
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <leader>as :SourcetrailRefresh<CR>`
+nnoremap <leader>aa :SourcetrailActivateToken<CR>`
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -233,7 +256,7 @@ inoreabbrev <expr> __
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Chromatica
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:chromatica#enable_at_startup=1
+let g:chromatica#enable_at_startup=0
 
 "let g:chromatica#libclang_path='/usr/lib/llvm-8/lib/libclang.so'
 let g:chromatica#libclang_path='/usr/lib/llvm-6.0/lib/libclang.so'
@@ -341,37 +364,53 @@ set hidden
 
     "\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
 "https://clang.llvm.org/extra/clangd/Installation.html
+let s:ccls_settings = {
+         \ 'highlight': { 'lsRanges' : v:true },
+         \ }
+let s:ccls_command = ['ccls', '-init=' . json_encode(s:ccls_settings), '--log-file=/tmp/cc.log']
+
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rls'],
     \ 'python': ['~/.local/bin/pyls'],
-    \ 'cpp' : ['clangd', '-background-index',],
-    \ 'c' : ['clangd','-background-index',],
+    \ 'cpp': s:ccls_command,
+    \ 'c': s:ccls_command,
     \ }
-"function SetLSPShortcuts()
-"  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
-"  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
-"  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
-"  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
-"  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
-"  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
-"  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
-"  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
-"  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-"  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
-"endfunction()
+    "\ 'cpp' : ['clangd', '-background-index',],
+    "\ 'c' : ['clangd','-background-index',],
+
+let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
+let g:LanguageClient_settingsPath = '/home/rmarr/.config/nvim/settings.json'
+set completefunc=LanguageClient#complete
+set formatexpr=LanguageClient_textDocument_rangeFormatting()
+
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
+nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
+nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+nn <silent> <C-,> :call LanguageClient#textDocument_references({'includeDeclaration': v:false})<cr>
+
+" caller
+nn <silent> xc :call LanguageClient#findLocations({'method':'$ccls/call'})<CR>:normal! m`<CR>
+" callee
+nn <silent> xC :call LanguageClient#findLocations({'method':'$ccls/call','callee':v:true})<CR>:normal! m`<CR>
+
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
 
-"augroup LSP
-"  autocmd!
-"  autocmd FileType cpp,c call SetLSPShortcuts()
-"augroup END
-
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
 "Hide in-line messages
 let g:LanguageClient_useVirtualText = 0
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ccls Stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:ccls_close_on_jump = v:true
+let g:ccls_levels = 3
+let g:ccls_size = 50
+let g:ccls_position = 'botright'
+let g:ccls_orientation = 'horizontal'
+"let g:yggdrasil_no_default_maps = 1
+"nmap <silent> <buffer> <leader>o <Plug>(yggdrasil-toggle-node)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Nerdcommenter
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
