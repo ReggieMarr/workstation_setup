@@ -93,7 +93,7 @@ alias gbit="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset
 alias s='subl'
 alias vi='nvim'
 alias cdg='cd $GDP'
-if [ "$TMUX" = "" ]; then tmux attach; fi
+#if [ "$TMUX" = "" ]; then tmux attach; fi
 
 
 export BAT_THEME="OneHalfLight"
@@ -106,3 +106,4 @@ function say_hello() {
     echo "Hello"
 }
 
+export RUST_SRC_PATH=/home/reggiemarr/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src

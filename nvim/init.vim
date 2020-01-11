@@ -324,6 +324,8 @@ let g:LanguageClient_serverCommands = {
 "endfunction()
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
+autocmd BufRead *.rs :setlocal tags=./rusty-tags.vi;/,$RUST_SRC_PATH/rusty-tags.vi
+autocmd BufWritePost *.rs :silent! exec "!rusty-tags vi --quiet --start-dir=" . expand('%:p:h') . "&" | redraw!
 "Cannot use autocmd here
 let g:LanguageClient_diagnosticsEnable = 0
 
@@ -513,7 +515,7 @@ function! UpdateTags()
   let f = expand("%:p")
   let cwd = getcwd()
   let tagfilename = cwd . "/tags"
-  let cmd = 'ctags -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
+  let cmd = 'ctags -R -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
   call DelTagOfFile(f)
   let resp = system(cmd)
 endfunction

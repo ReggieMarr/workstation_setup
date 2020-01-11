@@ -297,9 +297,10 @@ bar {
     }
 }
 
-exec compton
-exec --no-startup-id compton --opacity-rule '50:window_type = "dock" && class_g = "i3bar"' \
-    --active-opacity 0.95 -i 0.4 --blur-background
+exec ~/Downloads/gitDownloads/compton --config ~/Downloads/gitDownloads/compton/compton.sample.conf
+#exec compton
+#exec --no-startup-id compton --opacity-rule '50:window_type = "dock" && class_g = "i3bar"' \
+#    --active-opacity 0.95 -i 0.4 --blur-background
 exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
 exec --no-startup-id bash -c '~/.config/i3/startup-monitors.sh'
 #Enabled Natural Scrolling for touchpad
