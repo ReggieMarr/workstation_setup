@@ -16,6 +16,7 @@ call plug#begin()
         \ 'do': 'bash install.sh',
         \ }
     Plug 'racer-rust/vim-racer'
+    Plug 'ekalinin/Dockerfile.vim'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
     Plug 'ncm2/ncm2'
