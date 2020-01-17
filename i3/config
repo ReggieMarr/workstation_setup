@@ -28,7 +28,8 @@ font pango:monospace 8
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec ~/Downloads/gitDownloads/alacritty/target/release/alacritty
+#bindsym $mod+Return exec ~/Downloads/gitDownloads/alacritty/target/release/alacritty
+bindsym $mod+Return exec ~/.local/bin/kitty
 #bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
@@ -109,16 +110,17 @@ set $leftws2 "L2"
 set $rightws1 "R1"
 set $rightws2 "R2"
 
-workspace $ws1 output eDP-1
-workspace $ws4 output eDP-1
-workspace $ws7 output eDP-1
-workspace $ws2 output DP-1
-workspace $ws5 output DP-1
-workspace $ws8 output DP-1
-workspace $ws3 output DP-1-4
-workspace $ws6 output DP-1-4
-workspace $ws9 output DP-1-4
-
+# set workspaces
+workspace $ws1  output HDMI-0
+workspace $ws2  output HDMI-0
+workspace $ws4  output HDMI-0
+workspace $ws5  output HDMI-0
+workspace $ws7  output HDMI-0
+workspace $ws8  output HDMI-0
+workspace $ws3  output DP-2
+workspace $ws6  output DP-2
+workspace $ws9  output DP-2
+workspace $ws10 output DP-2
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -218,6 +220,7 @@ bindsym XF86AudioPrev exec playerctl previous
 bindsym $mod+shift+x exec betterlockscreen --lock # Lock the screen
 # Switch focus to urgent window
 bindsym $mod+x [urgent=latest] focus
+bindsym $mod+Tab focus mode_toggle
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -245,24 +248,22 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
-#set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
-#mode "$mode_system" {
-#    bindsym l exec --no-startup-id i3exit lock, mode "default"
-#    bindsym e exec --no-startup-id i3exit logout, mode "default"
-#    bindsym s exec --no-startup-id i3exit suspend, mode "default"
-#    bindsym h exec --no-startup-id i3exit hibernate, mode "default"
-#    bindsym r exec --no-startup-id i3exit reboot, mode "default"
-#    bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
-#
-#    # back to normal: Enter or Escape
-#    bindsym Return mode "default"
-#    bindsym Escape mode "default"
-#}
-#bindsym $mod+Pause mode "$mode_system"
-bindsym $mod+l exec i3lock-fancy -g
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+mode "$mode_system" {
+    #bindsym l exec --no-startup-id i3exit lock, mode "default"
+    bindsym l exec --no-startup-id /home/reggiemarr/Downloads/gitDownloads/i3lock-fancy/i3lock-fancy -gp
+    bindsym e exec --no-startup-id i3exit logout, mode "default"
+    bindsym s exec --no-startup-id i3exit suspend, mode "default"
+    bindsym h exec --no-startup-id i3exit hibernate, mode "default"
+    bindsym r exec --no-startup-id i3exit reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
 
-bindsym $mod+n exec --no-startup-id "source ~/.bash_aliases && check_priorities"
-bindsym $mod+p exec --no-startup-id "gnome-screenshot -i"
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+l mode "$mode_system"
+
 
 set $bg-color            #2f343f
 set $inactive-bg-color   #252932
@@ -284,7 +285,7 @@ bar {
     position bottom
     tray_output primary
     tray_padding 0
-    status_command i3status-rs ~/.config/i3/status.toml
+    status_command rust_status ~/.config/i3/status.toml
     colors {
         separator #666666
         background #222222
@@ -296,14 +297,29 @@ bar {
     }
 }
 
+exec ~/Downloads/gitDownloads/compton --config ~/Downloads/gitDownloads/compton/compton.sample.conf
 #exec compton
-exec --no-startup-id compton -b --config ~/.config/compton.conf
+#exec --no-startup-id compton --opacity-rule '50:window_type = "dock" && class_g = "i3bar"' \
+#    --active-opacity 0.95 -i 0.4 --blur-background
 exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &
 exec --no-startup-id bash -c '~/.config/i3/startup-monitors.sh'
 #Enabled Natural Scrolling for touchpad
 exec --no-startup-id synclient HorizEdgeScroll=1 VertEdgeScroll=1 VertScrollDelta=-113 NaturalScrolling=1
+exec --no-startup-id wal -R
 
 #exec i3-msg 'workspace $rightws1; exec /usr/local/bin/clion'
 #exec i3-msg 'workspace $ws1; exec $(which firefox)'
 #exec i3-msg 'exec /usr/lib/virtualbox/VirtualBoxVM --comment "Win10Network" --startvm "{46e9cf26-c96c-463d-99d2-06d9b35b4f3f}"'
 
+exec i3-msg 'workspace $ws2; exec $(which alacritty) -t main_term -e tmux'
+# Set program location
+set $alacritty_colorscheme ~/.bin/alacritty-colorscheme
+
+# Toggle between light and dark colorscheme
+bindsym $mod+Shift+n exec $alacritty_colorscheme -t solarized-light.yml solarized-dark.yml
+
+# Toggle between all available colorscheme
+bindsym $mod+Shift+m exec $alacritty_colorscheme -T
+
+# Get notification with current colorscheme
+bindsym $mod+Shift+b exec notify-send "Alacritty Colorscheme" `$alacritty_colorscheme -s`
