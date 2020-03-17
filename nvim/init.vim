@@ -330,10 +330,10 @@ autocmd BufWritePost *.rs :silent! exec "!rusty-tags vi --quiet --start-dir=" . 
 "Cannot use autocmd here
 let g:LanguageClient_diagnosticsEnable = 0
 
-augroup LSP
-  autocmd!
-  autocmd FileType cpp,c call SetLSPShortcuts()
-augroup END
+"augroup LSP
+"  autocmd!
+"  autocmd FileType cpp,c call SetLSPShortcuts()
+"augroup END
 
 nnoremap <F5> :call LanguageClient_contextMenu()<CR>
 "nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>

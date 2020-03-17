@@ -35,12 +35,12 @@ speed_up = false
 speed_down = false
 interval = 5
 
-[[block]]
-block = "music"
-player = "spotify"
-buttons = ["play", "next"]
-on_collapsed_click = "spotify"
-display_song = false
+#[[block]]
+#block = "music"
+#player = "spotify"
+#buttons = ["play", "next"]
+#on_collapsed_click = "spotify"
+#display_song = false
 
 [[block]]
 block = "sound"
@@ -73,13 +73,13 @@ warning_swap = 80
 critical_mem = 95
 critical_swap = 95
 
-[[block]]
-block = "nvidia_gpu"
-label = "Quadro P1000"
-show_memory = false
-show_temperature = false
-show_utilization = true
-interval = 1
+#[[block]]
+#block = "nvidia_gpu"
+#label = "Quadro P1000"
+#show_memory = false
+#show_temperature = false
+#show_utilization = true
+#interval = 1
 
 [[block]]
 block = "xrandr"

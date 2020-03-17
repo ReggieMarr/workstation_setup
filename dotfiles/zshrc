@@ -62,7 +62,7 @@ ENABLE_CORRECTION="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-z zsh-autosuggestions)
+plugins=(git z zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
 zstyle ':completion:*' menu select
@@ -76,7 +76,7 @@ zstyle ':completion:*' menu select
 
 # Preferred editor for local and remote sessions
 #if [[ -n $SSH_CONNECTION ]]; then
-export EDITOR='vim'
+export EDITOR='nvim'
 # else
 #   export EDITOR='mvim'
 #fi
@@ -99,7 +99,8 @@ autoload -U zmv
 alias zcp='zmv -C'
 alias zln='zmv -L'
 
-source ~/.bash_aliases
+source ~/Downloads/gitDownloads/zsh-z/zsh-z.plugin.zsh
 autoload -U compinit && compinit
+source ~/.bash_aliases
 eval "$(starship init zsh)"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

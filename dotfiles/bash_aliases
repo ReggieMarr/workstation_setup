@@ -9,7 +9,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 
 alias ls='ls --color=auto'
-alias vi='/usr/bin/vim'
+alias vi='nvim'
 alias l='ls -Al'
 alias ll='ls -alF'
 alias la='ls -A'
@@ -47,9 +47,8 @@ export GDP=$HOME"/Downloads/gitDownloads"
 export PATH="$PATH:$GDP/skim/bin"
 # bash env agnostic exports
 #export FZF_DEFAULT_COMMAND
-export SC="$HOME/profile_config/customscripts/"
-alias fd='fdfind'
-export FZF_DEFAULT_COMMAND="fdfind --type file --color=always"
+export SC="$HOME/Downloads/gitDownloads/workstation_setup/shell_config/"
+export FZF_DEFAULT_COMMAND="fd --type file --color=always"
 export FZF_DEFAULT_OPTS="--reverse --inline-info --ansi --preview-window=up:58"
 export FZF_COMPLETION_TRIGGER=']]'
 export MANPATH="/home/linuxbrew/.linuxbrew/share/man:$MANPATH"
@@ -91,7 +90,6 @@ alias pep8='autopep8 --in-place --aggressive --aggressive'
 alias reset='git reset HEAD --hard'
 alias gbit="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias s='subl'
-alias vi='nvim'
 alias cdg='cd $GDP'
 #if [ "$TMUX" = "" ]; then tmux attach; fi
 
@@ -107,3 +105,7 @@ function say_hello() {
 }
 
 export RUST_SRC_PATH=/home/reggiemarr/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src
+alias vi='nvim'
+export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+export GNUARMEMB_TOOLCHAIN_PATH="/usr/share/gcc-arm-none-eabi"
+export GNU_INSTALL_ROOT=$GNUARMEMB_TOOLCHAIN_PATH
