@@ -109,15 +109,15 @@ set $leftws2 "L2"
 set $rightws1 "R1"
 set $rightws2 "R2"
 
-workspace $ws1 output eDP-1
-workspace $ws4 output eDP-1
-workspace $ws7 output eDP-1
-workspace $ws2 output DP-1
-workspace $ws5 output DP-1
-workspace $ws8 output DP-1
-workspace $ws3 output DP-1-4
-workspace $ws6 output DP-1-4
-workspace $ws9 output DP-1-4
+#workspace $ws1 output eDP-1
+#workspace $ws4 output eDP-1
+#workspace $ws7 output eDP-1
+#workspace $ws2 output DP-1
+#workspace $ws5 output DP-1
+#workspace $ws8 output DP-1
+#workspace $ws3 output DP-1-4
+#workspace $ws6 output DP-1-4
+#workspace $ws9 output DP-1-4
 
 
 # switch to workspace

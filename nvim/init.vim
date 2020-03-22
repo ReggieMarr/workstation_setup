@@ -19,6 +19,8 @@ call plug#begin()
     Plug 'racer-rust/vim-racer'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
+    "Used with lsp for static analysis
+    Plug 'cespare/vim-toml'
     Plug 'm-pilia/vim-ccls'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
@@ -30,17 +32,19 @@ call plug#begin()
     "Plug 'ncm2/ncm2-jedi'
     "Use this to drop type info/snippet support
     Plug 'HansPinckaers/ncm2-jedi'
-    Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
     "Plug '~/.cargo/bin/sk'
     "Plug 'lotabout/skim.vim'
     " (Optional) Multi-entry selection UI.
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
     Plug 'SirVer/ultisnips'
-    Plug 'srstevenson/vim-picker'
+    Plug 'reggiemarr/vim-picker', {'branch' : 'feature/rm/custom_fuzzy_file_search'}
     Plug 'aklt/plantuml-syntax'
-    Plug 'ludovicchabant/vim-gutentags'
+    "Plug 'ludovicchabant/vim-gutentags'
     Plug 'tyru/open-browser.vim'
+    "An interactive debugger
+    Plug 'puremourning/vimspector'
+    Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
     "This blame would be nice but it makes things sooo slow
     "Plug 'tveskag/nvim-blame-line'
     Plug 'tpope/vim-fugitive'
@@ -57,20 +61,23 @@ call plug#begin()
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
     "May want to switch to https://github.com/euclio/vim-markdown-composer later
-    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+    "Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
     "With markdown viewer junegunn goyo and limelight might also be nice to have
     Plug 'scrooloose/nerdtree'  " file list
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
     "This could replace chromatica since it does not do its own analysis it just uses lsp
     Plug 'jackguo380/vim-lsp-cxx-highlight'
     Plug 'arakashic/chromatica.nvim'
-    Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
+    "A fuzzy search alternative to tagbar
+    Plug 'liuchengxu/vista.vim'
     Plug 'rust-lang/rust.vim'
     "Plug 'vim-syntastic/syntastic'
     Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
+    "For C# integration
+    Plug 'OmniSharp/omnisharp-vim'
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
@@ -111,6 +118,153 @@ nnoremap <leader>ev :split $MYVIMRC<cr>
 " source the vimrc file. (Run it):
 nnoremap <leader>sv :source $MYVIMRC<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Understand
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"command! UMenu silent: exe “!understand -existing -contextmenu %:p -line ” line(‘.’) ” -col ” col(‘.’) ” -text <cword> &” | redraw!
+"map <C-u> :UMenu<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For vim vista
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! NearestMethodOrFunction() abort
+  return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
+
+set statusline+=%{NearestMethodOrFunction()}
+
+" By default vista.vim never run if you don't call it explicitly.
+"
+" If you want to show the nearest function in your statusline automatically,
+" you can add the following line to your vimrc
+autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
+" How each level is indented and what to prepend.
+" This could make the display more compact or more spacious.
+" e.g., more compact: ["▸ ", ""]
+" Note: this option only works the LSP executives, doesn't work for `:Vista ctags`.
+let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
+
+" Executive used when opening vista sidebar without specifying it.
+" See all the avaliable executives via `:echo g:vista#executives`.
+let g:vista_default_executive = 'ctags'
+
+" Set the executive for some filetypes explicitly. Use the explicit executive
+" instead of the default one for these filetypes when using `:Vista` without
+" specifying the executive.
+let g:vista_executive_for = {
+  \ 'cpp': 'nvim_lsp',
+  \ 'c': 'nvim_lsp',
+  \ 'python': 'nvim_lsp',
+  \ }
+
+" Declare the command including the executable and options used to generate ctags output
+" for some certain filetypes.The file path will be appened to your custom command.
+" For example:
+let g:vista_ctags_cmd = {
+      \ 'haskell': 'hasktags -x -o - -c',
+      \ }
+
+" To enable fzf's preview window set g:vista_fzf_preview.
+" The elements of g:vista_fzf_preview will be passed as arguments to fzf#vim#with_preview()
+" For example:
+"let g:vista_fzf_preview = ['right:50%']
+nnoremap <leader>r :Vista finder<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For vimspector
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:vimspector_enable_mappings = "HUMAN"
+"Used in vim not friendly to neovim
+"packadd! vimspector
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For nvimgdb
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set to 1 to disable
+"let g:loaded_nvimgdb = 0
+" We're going to define single-letter keymaps, so don't try to define them
+" in the terminal window.  The debugger CLI should continue accepting text commands.
+function! NvimGdbNoTKeymaps()
+  tnoremap <silent> <buffer> <esc> <c-\><c-n>
+endfunction
+
+let g:nvimgdb_config_override = {
+  \ 'key_next': 'n',
+  \ 'key_step': 's',
+  \ 'key_finish': 'f',
+  \ 'key_continue': 'c',
+  \ 'key_until': 'u',
+  \ 'key_breakpoint': 'b',
+  \ 'set_tkeymaps': "NvimGdbNoTKeymaps",
+  \ }
+
+let g:vista#renderer#enable_icon = 1
+
+" The default icons can't be suitable for all the filetypes, you can extend it as you wish.
+let g:vista#renderer#icons = {
+\   "function": "\uf794",
+\   "variable": "\uf71b",
+\  }
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For OmniSharp
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+filetype indent plugin on
+let g:OmniSharp_highlight_types = 3
+let g:Omnisharp_server_use_mono=1
+
+
+augroup omnisharp_commands
+    autocmd!
+
+    " Show type information automatically when the cursor stops moving
+    autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
+
+    " The following commands are contextual, based on the cursor position.
+    autocmd FileType cs nnoremap <buffer> gd :OmniSharpGotoDefinition<CR>
+    autocmd FileType cs nnoremap <buffer> <Leader>fi :OmniSharpFindImplementations<CR>
+    autocmd FileType cs nnoremap <buffer> <Leader>fs :OmniSharpFindSymbol<CR>
+    autocmd FileType cs nnoremap <buffer> <Leader>fu :OmniSharpFindUsages<CR>
+
+    " Finds members in the current buffer
+    autocmd FileType cs nnoremap <buffer> <Leader>fm :OmniSharpFindMembers<CR>
+
+    autocmd FileType cs nnoremap <buffer> <Leader>fx :OmniSharpFixUsings<CR>
+    autocmd FileType cs nnoremap <buffer> <Leader>tt :OmniSharpTypeLookup<CR>
+    autocmd FileType cs nnoremap <buffer> <Leader>dc :OmniSharpDocumentation<CR>
+    autocmd FileType cs nnoremap <buffer> <C-\> :OmniSharpSignatureHelp<CR>
+    autocmd FileType cs inoremap <buffer> <C-\> <C-o>:OmniSharpSignatureHelp<CR>
+
+    " Navigate up and down by method/property/field
+    autocmd FileType cs nnoremap <buffer> <C-k> :OmniSharpNavigateUp<CR>
+    autocmd FileType cs nnoremap <buffer> <C-j> :OmniSharpNavigateDown<CR>
+
+    " Find all code errors/warnings for the current solution and populate the quickfix window
+    autocmd FileType cs nnoremap <buffer> <Leader>cc :OmniSharpGlobalCodeCheck<CR>
+augroup END
+
+" Contextual code actions (uses fzf, CtrlP or unite.vim when available)
+nnoremap <Leader><Space> :OmniSharpGetCodeActions<CR>
+" Run code actions with text selected in visual mode to extract method
+xnoremap <Leader><Space> :call OmniSharp#GetCodeActions('visual')<CR>
+
+" Rename with dialog
+nnoremap <Leader>nm :OmniSharpRename<CR>
+nnoremap <F2> :OmniSharpRename<CR>
+" Rename without dialog - with cursor on the symbol to rename: `:Rename newname`
+command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
+
+nnoremap <Leader>cf :OmniSharpCodeFormat<CR>
+
+" Start the omnisharp server for the current solution
+nnoremap <Leader>ss :OmniSharpStartServer<CR>
+nnoremap <Leader>sp :OmniSharpStopServer<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Marks
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <C-A> 0 :'0
+nnoremap <C-A> 1 :'1
+nnoremap <C-A> 2 :'2
+nnoremap <C-A> 3 :'3
+nnoremap <C-A> 4 :'4
+nnoremap <C-A> 5 :'5
+nnoremap <C-S-[> :''<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For gutentags
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <C-[> :pop<CR>
@@ -118,7 +272,7 @@ nnoremap <C-[> :pop<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For fugitive
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <leader>b :Gblame
+nnoremap <leader>  :Gblame<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For pdb
 """"""""""""""""""" Nvim python environment settings
@@ -159,10 +313,15 @@ let g:picker_split = 'bo'
 let g:picker_height = 40
 let g:picker_selector_executable = 'fzf'
 let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
-nmap <unique> <leader>pe <Plug>(PickerEdit)
-nmap <unique> <leader>ps <Plug>(PickerSplit)
+" Custom Picker Calls
+nmap <unique> <leader>pe <Plug>(FuzzyPicker)
+nmap <unique> <leader>ps <Plug>(SideFuzzyPicker)
+nmap <unique> <leader>pv <Plug>(VertFuzzyPicker)
+
+"nmap <unique> <leader>pe <Plug>(PickerEdit)
+"nmap <unique> <leader>ps <Plug>(PickerSplit)
 nmap <unique> <leader>pt <Plug>(PickerTabedit)
-nmap <unique> <leader>pv <Plug>(PickerVsplit)
+"nmap <unique> <leader>pv <Plug>(PickerVsplit)
 nmap <unique> <leader>pb <Plug>(PickerBuffer)
 nmap <unique> <leader>p] <Plug>(PickerTag)
 nmap <unique> <leader>pw <Plug>(PickerStag)
@@ -187,7 +346,7 @@ let g:ale_linters_ignore = {'python': ['pylint']}
 "test_system.py:21:4: R0201 (no-self-use) Method could be a function
 "test_system.py:20:0: R0903 (too-few-public-methods) Too few public methods (1/2)
 "test_system.py:47:4: C0103 (invalid-name) Constant name "test" doesn't conform to UPPER_CASE naming style
-let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503,E221,E203'
+let g:ale_python_flake8_options = '--ignore=E722,E129,E501,E302,E265,E241,E305,E402,W503,E221,E203'
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
 let g:ale_list_window_size = 4
 let g:ale_sign_column_always = 0
@@ -207,6 +366,8 @@ let g:ale_lint_on_enter = 0
 let g:ale_lint_on_save = 1
 nmap <silent> <C-M> <Plug>(ale_previous_wrap)
 nmap <silent> <C-m> <Plug>(ale_next_wrap)
+au FileType c ALEDisable
+au FileType cpp ALEDisable
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Tag and Tree Toggle
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -371,7 +532,7 @@ let s:ccls_command = ['ccls', '-init=' . json_encode(s:ccls_settings), '--log-fi
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rls'],
-    \ 'python': ['~/.local/bin/pyls'],
+    \ 'python': ['/home/rmarr/.local/bin/pyls'],
     \ 'cpp': s:ccls_command,
     \ 'c': s:ccls_command,
     \ }
@@ -383,24 +544,27 @@ let g:LanguageClient_settingsPath = '/home/rmarr/.config/nvim/settings.json'
 set completefunc=LanguageClient#complete
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+nnoremap <silent> F5:call LanguageClient_contextMenu()<CR>
 nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>
+nnoremap <silent> gd :normal! m'<CR>:call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>:normal! m`<<CR>
+nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>:normal! m`<<CR>
 nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
 nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 nn <silent> <C-,> :call LanguageClient#textDocument_references({'includeDeclaration': v:false})<cr>
 
+"nn <silent> ff :call BTags<CR>
 " caller
-nn <silent> xc :call LanguageClient#findLocations({'method':'$ccls/call'})<CR>:normal! m`<CR>
+nn <silent> xc :normal! m'<CR>:call LanguageClient#findLocations({'method':'$ccls/call'})<CR>
 " callee
-nn <silent> xC :call LanguageClient#findLocations({'method':'$ccls/call','callee':v:true})<CR>:normal! m`<CR>
+nn <silent> xC :normal! m'<CR>:call LanguageClient#findLocations({'method':'$ccls/call','callee':v:true})<CR>
 
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
 
 "Hide in-line messages
-let g:LanguageClient_useVirtualText = 0
+let g:LanguageClient_useVirtualText = "No"
+let g:LanguageClient_hoverPreview = "Always"
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ccls Stuff
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -409,6 +573,14 @@ let g:ccls_levels = 3
 let g:ccls_size = 50
 let g:ccls_position = 'botright'
 let g:ccls_orientation = 'horizontal'
+" $ccls/member
+" nested classes / types in a namespace
+nn <silent> xs :call LanguageClient#findLocations({'method':'$ccls/member','kind':2})<cr>
+" member functions / functions in a namespace
+nn <silent> xf :call LanguageClient#findLocations({'method':'$ccls/member','kind':3})<cr>
+" member variables / variables in a namespace
+nn <silent> xm :call LanguageClient#findLocations({'method':'$ccls/member'})<cr>
+
 "let g:yggdrasil_no_default_maps = 1
 "nmap <silent> <buffer> <leader>o <Plug>(yggdrasil-toggle-node)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
