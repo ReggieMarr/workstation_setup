@@ -40,10 +40,10 @@ call plug#begin()
     Plug 'SirVer/ultisnips'
     Plug 'reggiemarr/vim-picker', {'branch' : 'feature/rm/custom_fuzzy_file_search'}
     Plug 'aklt/plantuml-syntax'
+    Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
     "Plug 'ludovicchabant/vim-gutentags'
     Plug 'tyru/open-browser.vim'
     "An interactive debugger
-    Plug 'puremourning/vimspector'
     Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
     "This blame would be nice but it makes things sooo slow
     "Plug 'tveskag/nvim-blame-line'
@@ -60,6 +60,7 @@ call plug#begin()
     "Needs nerdfonts to work properly
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
+    Plug 'kaicataldo/material.vim'
     "May want to switch to https://github.com/euclio/vim-markdown-composer later
     "Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
     "With markdown viewer junegunn goyo and limelight might also be nice to have
@@ -78,6 +79,8 @@ call plug#begin()
     Plug 'ervandew/supertab'
     "For C# integration
     Plug 'OmniSharp/omnisharp-vim'
+    "Debugger with DAP support couldnt get stepping through code or evaluating state to work
+    "Plug 'puremourning/vimspector', {'do' : './install_gadget.py --all --disable-tcl'}
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
@@ -92,8 +95,17 @@ set noshowcmd
 let mapleader=" "
 let g:airline_powerline_fonts = 1
 let g:webdevicons_enable_airline_statusline = 1
+let g:airline_theme = 'material'
 set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
 nnoremap <leader>n :execute "vspl" "~/notes/" . strftime('%d_%m_%Y') .".md"<CR>
+
+" Window managing
+nmap <unique> <leader>ts :split<bar>terminal<CR>a
+nmap <unique> <leader>tv :vsplit<bar>terminal<CR>a
+nmap <unique> <leader>te :terminal<CR>a
+tnoremap WW <C-\><C-n>
+tnoremap QQ <C-\><C-n>:q<CR>
+
 
 " Always show statusline
 set laststatus=2
@@ -170,7 +182,9 @@ nnoremap <leader>r :Vista finder<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For vimspector
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:vimspector_enable_mappings = "HUMAN"
+"let g:vimspector_enable_mappings = "HUMAN"
+"nnoremap <Leader> <F5> :call vimspector#Launch()
+"nnoremap <Leader> <F8> :call vimspector#AddFunctionBreakpoint(expand('<cexpr>'))
 "Used in vim not friendly to neovim
 "packadd! vimspector
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -180,6 +194,8 @@ let g:vimspector_enable_mappings = "HUMAN"
 "let g:loaded_nvimgdb = 0
 " We're going to define single-letter keymaps, so don't try to define them
 " in the terminal window.  The debugger CLI should continue accepting text commands.
+au FileType python nnoremap <leader>DD :GdbStartPDB python3 -m pdb expand('%:t')<CR>
+
 function! NvimGdbNoTKeymaps()
   tnoremap <silent> <buffer> <esc> <c-\><c-n>
 endfunction
@@ -272,7 +288,7 @@ nnoremap <C-[> :pop<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For fugitive
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <leader>  :Gblame<CR>
+"nnoremap <leader>  :Gblame<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For pdb
 """"""""""""""""""" Nvim python environment settings
@@ -373,7 +389,7 @@ au FileType cpp ALEDisable
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " toggle nerdtree on ctrl+n
 map <C-n> :NERDTreeToggle<CR>
-nmap <F8> :TagbarToggle<CR>
+"nmap <F8> :TagbarToggle<CR>
 map <C-t> :set nosplitright<CR>:TagbarToggle<CR>:set splitright<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Table formatter
@@ -454,6 +470,9 @@ nnoremap <silent> <C-p> :call fzf#run({
     \ 'sink':  'e', 'bottom': '40%'})<CR>
 nnoremap <leader>f :Files<CR>
 nnoremap <leader>g :Rg<CR>
+nnoremap <leader><S-g> :Clap blines<CR>
+nnoremap <C-g> :Clap grep<CR>
+nnoremap <leader>fs :Clap filer<CR>
 "nnoremap <C-p> :Files<Cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Jedi
@@ -490,6 +509,7 @@ autocmd BufEnter * call ncm2#enable_for_buffer()
 autocmd BufEnter *.md call ncm2#disable_for_buffer()
 
 " IMPORTANT: :help Ncm2PopupOpen for more information
+nnoremap <leader>T :tabNext<CR>
 let g:SuperTabMappingForward = '<tab>'
 let g:SuperTabMappingBackward = '<s-tab>'
 let g:SuperTabDefaultCompletionType = "context"
@@ -628,6 +648,15 @@ syntax enable
 if has("termguicolors")
     set termguicolors
 endif
+
+if (has('nvim)'))
+    let $NVIM_TUI_ENABLE_TRUE_COLOR = 1
+endif
+
+let g:material_terminal_italics = 1
+"let g:material_theme_style = 'lighter'
+colorscheme material
+
 "Convert tabs to spaces
 set expandtab
 set shiftwidth=4
@@ -705,12 +734,12 @@ if has("autocmd")
 
 " Remove trailing whitepsaces for each line on save.
 " Highlight text that goes past the 121 line limit.
-augroup vimrc_autocmds
-    "autocmd BufReadPre * setlocal foldmethod=syntax
-    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
-    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
-    autocmd BufEnter * match OverLength /\%121v.*/
-augroup END
+"augroup vimrc_autocmds
+"    "autocmd BufReadPre * setlocal foldmethod=syntax
+"    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
+"    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
+"    autocmd BufEnter * match OverLength /\%121v.*/
+"augroup END
 
 if has("autocmd")
 " autocmd BufRead,BufNewFile *.[ch] let fname = expand('<afile>:p:h') . '/types.vim'
@@ -763,7 +792,6 @@ autocmd BufWritePost *.cpp,*.h,*.c call UpdateTags()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <C-c> :y+
 nnoremap <C-f> :%s/
-nnoremap <C-o> :!
 nnoremap <F7> :! git rev-parse --abbrev-ref HEAD <CR>
 "Adjust current split
 nnoremap <S-A-Left> : vertical resize -2 <CR>
