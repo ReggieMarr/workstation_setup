@@ -73,6 +73,11 @@ RUN mkdir -p $HOME/.extra_dotfiles
 
 COPY dotfiles/extra_dotfiles/fuzzy $HOME/.extra_dotfiles/.fuzzy
 
+<<<<<<< HEAD
+COPY dotfiles/extra_dotfiles/mx_specific $HOME/.extra_dotfiles/.mx_specific
+
+=======
+>>>>>>> master
 RUN mkdir -p $HOME/profile_config/
 
 COPY customScripts $HOME/profile_config/
@@ -81,6 +86,10 @@ RUN mkdir -p $HOME/util
 
 COPY git-completion.sh $HOME/util/git-completion.sh
 
+<<<<<<< HEAD
+RUN "entrypoint should be used to add sk to path:
+=======
 #/*RUN "entrypoint should be used to add sk to path:*/
+>>>>>>> master
 
 CMD ["zsh"]

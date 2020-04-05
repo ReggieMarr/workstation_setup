@@ -110,6 +110,18 @@ set $leftws2 "L2"
 set $rightws1 "R1"
 set $rightws2 "R2"
 
+<<<<<<< HEAD
+#workspace $ws1 output eDP-1
+#workspace $ws4 output eDP-1
+#workspace $ws7 output eDP-1
+#workspace $ws2 output DP-1
+#workspace $ws5 output DP-1
+#workspace $ws8 output DP-1
+#workspace $ws3 output DP-1-4
+#workspace $ws6 output DP-1-4
+#workspace $ws9 output DP-1-4
+
+=======
 # set workspaces
 workspace $ws1  output HDMI-0
 workspace $ws2  output HDMI-0
@@ -121,6 +133,7 @@ workspace $ws3  output DP-2
 workspace $ws6  output DP-2
 workspace $ws9  output DP-2
 workspace $ws10 output DP-2
+>>>>>>> master
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1

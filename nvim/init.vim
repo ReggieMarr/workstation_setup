@@ -19,9 +19,12 @@ call plug#begin()
     Plug 'ekalinin/Dockerfile.vim'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
+    "Used with lsp for static analysis
+    Plug 'cespare/vim-toml'
+    Plug 'm-pilia/vim-ccls'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
-
+    Plug 'CoatiSoftware/vim-sourcetrail'
     " NOTE: you need to install completion sources to get completions. Check
     " our wiki page for a list of sources: https://github.com/ncm2/ncm2/wiki
     Plug 'ncm2/ncm2-bufword'
@@ -35,38 +38,55 @@ call plug#begin()
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
     Plug 'SirVer/ultisnips'
-    Plug 'srstevenson/vim-picker'
+    Plug 'reggiemarr/vim-picker', {'branch' : 'feature/rm/custom_fuzzy_file_search'}
     Plug 'aklt/plantuml-syntax'
+    Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
+    "Plug 'ludovicchabant/vim-gutentags'
     Plug 'tyru/open-browser.vim'
+    "An interactive debugger
+    Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
+    "This blame would be nice but it makes things sooo slow
+    "Plug 'tveskag/nvim-blame-line'
+    Plug 'tpope/vim-fugitive'
+    "Plug 'weirongxu/plantuml-previewer.vim'
     "This doesn't work, would be great if it did though
     "Plug 'scrooloose/vim-slumlord'
     Plug 'jiangmiao/auto-pairs'
     Plug 'honza/vim-snippets'
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     Plug 'Shougo/echodoc.vim'
     Plug 'scrooloose/nerdcommenter'
     Plug 'davidhalter/jedi-vim'
     "Needs nerdfonts to work properly
     Plug 'ryanoasis/vim-devicons'
     "Plug 'dylanaraps/wal'
+    Plug 'kaicataldo/material.vim'
     "May want to switch to https://github.com/euclio/vim-markdown-composer later
-    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+    "Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
     "With markdown viewer junegunn goyo and limelight might also be nice to have
     Plug 'scrooloose/nerdtree'  " file list
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
+    "This could replace chromatica since it does not do its own analysis it just uses lsp
+    Plug 'jackguo380/vim-lsp-cxx-highlight'
     Plug 'arakashic/chromatica.nvim'
-    Plug 'critiqjo/lldb.nvim'
     Plug 'majutsushi/tagbar'
+    "A fuzzy search alternative to tagbar
+    Plug 'liuchengxu/vista.vim'
     Plug 'rust-lang/rust.vim'
-    ""Plug 'vim-syntastic/syntastic'
+    "Plug 'vim-syntastic/syntastic'
     Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
+    "For C# integration
+    Plug 'OmniSharp/omnisharp-vim'
+    "Debugger with DAP support couldnt get stepping through code or evaluating state to work
+    "Plug 'puremourning/vimspector', {'do' : './install_gadget.py --all --disable-tcl'}
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
 " Open files in vertical horizontal split
 set cmdheight=2
+set wrapscan
 "set wrapscan
 set smartcase
 set noswapfile
@@ -90,7 +110,6 @@ set termguicolors
 else
 set t_Co=256
 endif
-
 "let g:airline#extensions#tabline#enabled = 1
 
 "set clipboard=unnamedplus
@@ -120,16 +139,36 @@ hi NeomakeWarning gui=underline guisp=Green cterm=underline ctermfg=1
 highlight clear SignColumn
 au BufWritePost *.rs NeomakeProject cargo
 let g:airline#extensions#neomake#enabled = 1
+>>>>>>> master
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For picker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:picker_custom_find_executable = 'rg'
 let g:picker_custom_find_flags = '. -n -g "!*.html"'
 "let g:picker_custom_find_flags = '--color never --files'
-let g:picker_split = 'topleft'
-let g:picker_height = 20
+let g:picker_split = 'bo'
+let g:picker_height = 40
 let g:picker_selector_executable = 'fzf'
 let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
+" Custom Picker Calls
+nmap <unique> <leader>pe <Plug>(FuzzyPicker)
+nmap <unique> <leader>ps <Plug>(SideFuzzyPicker)
+nmap <unique> <leader>pv <Plug>(VertFuzzyPicker)
+
+"nmap <unique> <leader>pe <Plug>(PickerEdit)
+"nmap <unique> <leader>ps <Plug>(PickerSplit)
+nmap <unique> <leader>pt <Plug>(PickerTabedit)
+"nmap <unique> <leader>pv <Plug>(PickerVsplit)
+nmap <unique> <leader>pb <Plug>(PickerBuffer)
+nmap <unique> <leader>p] <Plug>(PickerTag)
+nmap <unique> <leader>pw <Plug>(PickerStag)
+nmap <unique> <leader>po <Plug>(PickerBufferTag)
+nmap <unique> <leader>ph <Plug>(PickerHelp)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For SourceTrail
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <leader>as :SourcetrailRefresh<CR>`
+nnoremap <leader>aa :SourcetrailActivateToken<CR>`
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -140,25 +179,30 @@ let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
 let g:ale_list_window_size = 4
 let g:ale_sign_column_always = 0
-let g:ale_open_list = 1
-let g:ale_keep_list_window_open = '1'
+let g:ale_open_list = 0
+let g:ale_keep_list_window_open = 1
+let g:ale_set_loclist = 0
 
 " Options are in .pylintrc!
 highlight VertSplit ctermbg=253
+highlight ALEError cterm=undercurl gui=undercurl
+highlight ALEWarning cterm=underline gui=underline
 
 let g:ale_sign_error = '‼'
 let g:ale_sign_warning = '∙'
 let g:ale_lint_on_text_changed = 'never'
-let g:ale_lint_on_enter = '0'
-let g:ale_lint_on_save = '0'
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_save = 1
 nmap <silent> <C-M> <Plug>(ale_previous_wrap)
 nmap <silent> <C-m> <Plug>(ale_next_wrap)
+au FileType c ALEDisable
+au FileType cpp ALEDisable
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Tag and Tree Toggle
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " toggle nerdtree on ctrl+n
 map <C-n> :NERDTreeToggle<CR>
-nmap <F8> :TagbarToggle<CR>
+"nmap <F8> :TagbarToggle<CR>
 map <C-t> :set nosplitright<CR>:TagbarToggle<CR>:set splitright<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Table formatter
@@ -181,8 +225,13 @@ inoreabbrev <expr> __
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
 "let g:UltiSnipsExpandTrigger="<tab>"  " use <Tab> trigger autocompletion
-let g:UltiSnipsJumpForwardTrigger="<c-f>"
-let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+"let g:UltiSnipsJumpForwardTrigger="<c-f>"
+"let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Synatastic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"let g:syntastic_rust_checkers = ['cargo']
+"let g:rust_cargo_avoid_whole_workspace = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Synatastic
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -204,7 +253,8 @@ let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:chromatica#enable_at_startup=0
 
-let g:chromatica#libclang_path='/usr/lib/llvm-8/lib/libclang.so'
+"let g:chromatica#libclang_path='/usr/lib/llvm-8/lib/libclang.so'
+let g:chromatica#libclang_path='/usr/lib/llvm-6.0/lib/libclang.so'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Fuzzy
@@ -234,9 +284,13 @@ nnoremap <silent> <C-h> :call fzf#run({
 "    \   'sink':  'vertical botright split',
 "    \   'height': '40%'})<CR>
 nnoremap <silent> <C-p> :call fzf#run({
-    \ 'sink':  'e', 'right': '40%'})<CR>
+    \ 'source' : 'fd',
+    \ 'sink':  'e', 'bottom': '40%'})<CR>
 nnoremap <leader>f :Files<CR>
 nnoremap <leader>g :Rg<CR>
+nnoremap <leader><S-g> :Clap blines<CR>
+nnoremap <C-g> :Clap grep<CR>
+nnoremap <leader>fs :Clap filer<CR>
 "nnoremap <C-p> :Files<Cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Jedi
@@ -270,8 +324,10 @@ inoremap <c-c> <ESC>
 " line.
     " enable ncm2 for all buffers
 autocmd BufEnter * call ncm2#enable_for_buffer()
+autocmd BufEnter *.md call ncm2#disable_for_buffer()
 
 " IMPORTANT: :help Ncm2PopupOpen for more information
+nnoremap <leader>T :tabNext<CR>
 let g:SuperTabMappingForward = '<tab>'
 let g:SuperTabMappingBackward = '<s-tab>'
 let g:SuperTabDefaultCompletionType = "context"
@@ -279,6 +335,7 @@ set completeopt=noinsert,menuone
 set pumheight=5
 let ncm2#complete_length = [[1,1]]
 let ncm2#popup_delay = 5
+inoremap <expr> <Space> (pumvisible() ? "\<c-y>" : "\<Space>")
 inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
 
 au FileType Markdown call ncm2#disable_for_buffer()
@@ -305,41 +362,65 @@ inoremap <expr> <PageUp> pumvisible() ? "\<C-p>" : "\<PageUp>"
 set hidden
 
     "\ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+"https://clang.llvm.org/extra/clangd/Installation.html
+let s:ccls_settings = {
+         \ 'highlight': { 'lsRanges' : v:true },
+         \ }
+let s:ccls_command = ['ccls', '-init=' . json_encode(s:ccls_settings), '--log-file=/tmp/cc.log']
+
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['rls'],
-    \ 'python': ['~/.local/bin/pyls'],
-    \ 'cpp' : ['clangd'],
-    \ 'c' : ['clangd'],
+    \ 'python': ['/home/rmarr/.local/bin/pyls'],
+    \ 'cpp': s:ccls_command,
+    \ 'c': s:ccls_command,
     \ }
-"function SetLSPShortcuts()
-"  nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
-"  nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
-"  nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
-"  nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
-"  nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
-"  nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
-"  nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
-"  nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
-"  nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-"  nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
-"endfunction()
+    "\ 'cpp' : ['clangd', '-background-index',],
+    "\ 'c' : ['clangd','-background-index',],
+
+let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
+let g:LanguageClient_settingsPath = '/home/rmarr/.config/nvim/settings.json'
+set completefunc=LanguageClient#complete
+set formatexpr=LanguageClient_textDocument_rangeFormatting()
+
+nnoremap <silent> F5:call LanguageClient_contextMenu()<CR>
+nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
+nnoremap <silent> gd :normal! m'<CR>:call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gi :call LanguageClient#textDocument_implementation()<CR>:normal! m`<<CR>
+nnoremap <silent> gr :call LanguageClient#textDocument_references()<CR>:normal! m`<<CR>
+nnoremap <silent> gs :call LanguageClient#textDocument_documentSymbol()<CR>
+nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+nn <silent> <C-,> :call LanguageClient#textDocument_references({'includeDeclaration': v:false})<cr>
+
+"nn <silent> ff :call BTags<CR>
+" caller
+nn <silent> xc :normal! m'<CR>:call LanguageClient#findLocations({'method':'$ccls/call'})<CR>
+" callee
+nn <silent> xC :normal! m'<CR>:call LanguageClient#findLocations({'method':'$ccls/call','callee':v:true})<CR>
+
 au FileType Rust nnoremap <silent> <C-]> :call LanguageClient#textDocument_definition()<CR>:normal! m`<CR>
 au FileType Rust  nnoremap <silent> <C-S-]> :call LanguageClient#textDocument_hover()<CR>
-autocmd BufRead *.rs :setlocal tags=./rusty-tags.vi;/,$RUST_SRC_PATH/rusty-tags.vi
-autocmd BufWritePost *.rs :silent! exec "!rusty-tags vi --quiet --start-dir=" . expand('%:p:h') . "&" | redraw!
-"Cannot use autocmd here
-let g:LanguageClient_diagnosticsEnable = 0
 
-augroup LSP
-  autocmd!
-  autocmd FileType cpp,c call SetLSPShortcuts()
-augroup END
-
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-nnoremap <silent> gh :call LanguageClient#textDocument_hover()<CR>
 "Hide in-line messages
-let g:LanguageClient_useVirtualText = 0
+let g:LanguageClient_useVirtualText = "No"
+let g:LanguageClient_hoverPreview = "Always"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ccls Stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:ccls_close_on_jump = v:true
+let g:ccls_levels = 3
+let g:ccls_size = 50
+let g:ccls_position = 'botright'
+let g:ccls_orientation = 'horizontal'
+" $ccls/member
+" nested classes / types in a namespace
+nn <silent> xs :call LanguageClient#findLocations({'method':'$ccls/member','kind':2})<cr>
+" member functions / functions in a namespace
+nn <silent> xf :call LanguageClient#findLocations({'method':'$ccls/member','kind':3})<cr>
+" member variables / variables in a namespace
+nn <silent> xm :call LanguageClient#findLocations({'method':'$ccls/member'})<cr>
+
+"let g:yggdrasil_no_default_maps = 1
+"nmap <silent> <buffer> <leader>o <Plug>(yggdrasil-toggle-node)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Nerdcommenter
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -381,6 +462,18 @@ let g:deoplete#enable_at_startup = 1
 " SETS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 syntax on
+syntax enable
+if has("termguicolors")
+    set termguicolors
+endif
+
+if (has('nvim)'))
+    let $NVIM_TUI_ENABLE_TRUE_COLOR = 1
+endif
+
+let g:material_terminal_italics = 1
+"let g:material_theme_style = 'lighter'
+colorscheme material
 
 "Convert tabs to spaces
 set expandtab
@@ -396,6 +489,7 @@ set t_Co=256
 "set number
 "set numberwidth=6
 " Set text wrapping at 120 (used to be 80) columns
+set nowrap
 "set tw=120
 " Indent to the tab positiion when  you cross over the 80 line limit.
 set smartindent
@@ -438,12 +532,14 @@ endif
 " MOUSE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Allow the mouse to be used for selecting
-" :set mouse=""     Disable all mouse behaviour.
-" :set mouse=a      Enable all mouse behaviour (the default).
-" :set mouse+=v     Enable visual mode (v)
-" :set mouse-=c     Disable mouse in command mode.
+set mouse=""    " Disable all mouse behaviour.
+set mouse=a     " Enable all mouse behaviour (the default).
+set mouse+=v    " Enable visual mode (v)
+set mouse-=c    " Disable mouse in command mode.
 
 
+<<<<<<< HEAD
+=======
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " COLORS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -458,6 +554,7 @@ highlight Number       ctermfg=202
 highlight Search       ctermfg=1  ctermbg=5
 highlight Todo         ctermfg=1  ctermbg=11
 
+>>>>>>> master
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " AUTO COMMANDS
@@ -470,12 +567,21 @@ if has("autocmd")
 
 " Remove trailing whitepsaces for each line on save.
 " Highlight text that goes past the 121 line limit.
+<<<<<<< HEAD
+"augroup vimrc_autocmds
+"    "autocmd BufReadPre * setlocal foldmethod=syntax
+"    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
+"    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
+"    autocmd BufEnter * match OverLength /\%121v.*/
+"augroup END
+=======
 augroup vimrc_autocmds
     "autocmd BufReadPre * setlocal foldmethod=syntax
     "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
     autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
     autocmd BufEnter * match OverLength /\%121v.*/
 augroup END
+>>>>>>> master
 
 if has("autocmd")
 " autocmd BufRead,BufNewFile *.[ch] let fname = expand('<afile>:p:h') . '/types.vim'
@@ -528,7 +634,6 @@ autocmd BufWritePost *.cpp,*.h,*.c call UpdateTags()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <C-c> :y+
 nnoremap <C-f> :%s/
-nnoremap <C-o> :!
 nnoremap <F7> :! git rev-parse --abbrev-ref HEAD <CR>
 "Adjust current split
 nnoremap <S-A-Left> : vertical resize -2 <CR>
@@ -540,7 +645,6 @@ nnoremap <C-S-\> : split <CR>
 "nnoremap <C-k-w> : quit <CR>
 
 
-set ignorecase
 " get the notename
 "function! GetNoteName()
 "    let s:branch = system('git rev-parse --abbrev-ref HEAD')
@@ -589,6 +693,20 @@ function! Cscope(option, query)
   endfunction
   call fzf#run(opts)
 endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" COLORS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"highlight Folded       ctermfg=7   ctermbg=8
+"highlight FoldColumn   ctermfg=7   ctermbg=8
+"highlight VertSplit    ctermfg=8   ctermbg=0
+"highlight StatusLine   ctermfg=8   ctermbg=2
+"highlight StatusLineNC ctermfg=8   ctermbg=60
+"highlight LineNr       ctermfg=60
+"highlight Comment      ctermfg=60
+"highlight Number       ctermfg=202
+"highlight Search       ctermfg=0  ctermbg=12
+"highlight Todo         ctermfg=0  ctermbg=11
 
 " Invoke command. 'g' is for call graph, kinda.
 "nnoremap <silent> <Leader>g :call Cscope('3', expand('<cword>'))<CR>

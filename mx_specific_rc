@@ -1,0 +1,156 @@
+export WORKON_HOME=$HOME/code/.virtualenvs
+export PROJECT_HOME=$HOME/code
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+export VIRTUALENVWRAPPER_VIRTUALENV=/usr/bin/virtualenv
+export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'
+source /usr/local/bin/virtualenvwrapper.sh
+
+export mcu_var=$mcu_var
+export gimbal_var=$gimbal_var
+export pld_var=$pld_var
+export dcb2_var=$dcb2_var
+export cca_var=$cca_var
+export current_dev=$current_dev
+alias mcu='echo $mcu_var;export current_dev=$mcu_var'
+alias gimbal='echo $gimbal_var;export current_dev=$gimbal_var'
+alias pld='echo $pld_var;export current_dev=$pld_var'
+alias dcb2='echo $dcb2_var;export current_dev=$dcb2_var'
+alias cca='export current_dev=$cca_var; echo $current_dev'
+function set_mcu() {
+    export mcu_var=$1
+    echo "mcu is"
+    mcu
+}
+function set_gimbal() {
+    export gimbal_var=$1
+    echo "gimabl is"
+    gimbal
+}
+function set_pld() {
+    export pld_var=$1
+    echo "pld is "
+    pld
+}
+function set_dcb2() {
+    export dcb2_var=$1
+    echo "dcb2 is "
+    dcb2
+}
+function set_cca() {
+    export cca_var=$1
+    echo "cca is "
+    cca
+}
+
+git_clone() {
+    git clone ssh://git@cesium:7999/mx/release.git
+}
+
+hiho() {
+    python /home/rmarr/.customScripts/startWork.py "$1" "$2" #&& python /home/rmarr/.customScripts/keepTrack.py "$1" "$2"
+}
+
+wbear() {
+    bear -l libear.so -o compile_commands.json $(make.py $1 -B --expand)
+}
+
+alias wbear_pld="wbear $pld_var"
+alias wbear_mcu="wbear $mcu_var"
+alias wbear_gimbal="wbear $gimbal_var"
+alias wbuild="wbear $current_dev"
+
+function vdd() {
+    if ! [ -z "$1" ]
+    then
+        ssh blade cat /home/sw-eng/builds/$1/$1.vdd
+    elif ! [ -z "$current_dev" ]
+    then
+        export vdd_dev=$current_dev
+        if [[ "${current_dev: -1}" = X* ]]
+        then
+            export vdd_dev=$(echo ${current_dev: : -1})-
+        fi
+        ssh blade cat /home/sw-eng/builds/$vdd_dev/$vdd_dev.vdd
+    else
+        echo "no valid pn to get"
+    fi
+}
+
+function fvdd() {
+    vdd $1 | fzf
+}
+
+function __get_cfg() {
+    echo $1
+    if ! [[ -f /home/sw-eng/builds/$1/cfg.h ]]; then
+        ssh blade cat /home/sw-eng/builds/$1/cfg.h
+    elif ! [[ -f /home/sw-eng/builds/$1/customer.h ]]; then
+        ssh blade cat /home/sw-eng/builds/$1/customer.h
+    else
+        echo "Could not find cfg.h or customer.h for $1"
+    fi
+}
+
+function get_cfg() {
+    if ! [ -z "$1" ]
+    then
+        __get_cfg $1
+    elif ! [ -z "$current_dev" ]
+    then
+        export vdd_dev=$current_dev
+        if [[ "${current_dev: -1}" = X* ]]
+        then
+            export vdd_dev=$(echo ${current_dev: : -1})-
+        fi
+        __get_cfg $vdd_dev
+    else
+        echo "invalid part number"
+    fi
+}
+
+function fcfg() {
+    get_cfg $1 | fzf
+}
+
+function get_pn() {
+    if [ -z "$1" ]
+    then
+        scp pyrite:/home/rmarr/release/$1 .
+    elif [ -z "$current_dev" ]
+    then
+        scp pyrite:/home/rmarr/release/$current_dev .
+    else
+        echo "no valid pn to get"
+    fi
+}
+
+function send_file() {
+    scp $1 pyrite:/home/rmarr/release
+}
+#this works for now to support zsh but should probably be updated
+if [ $BASH_VERSION ]; then
+    if [ $(hostname) == localhost.localdomain ]; then
+        export OPT_ROOT=/opt
+    else
+        export OPT_ROOT=/opt/software
+    fi
+else
+    export OPT_ROOT=/opt/software
+fi
+export CPPUTEST_HOME=$OPT_ROOT/cpputest
+# Added maint to the PATH
+export PATH=$PATH:/home/rmarr/Projects/workRequests/bugfixes/release/
+export PATH=$PATH:/home/rmarr/util/pymaint/
+#Added to use ngrok
+export PATH=$PATH:/home/rmarr/Projects/dev-Ops/atlassianAutomation/ngrok
+export CFGDB_DIR=~/cfgdb
+# Virtual Environment Wrapper
+alias workoncv-master="source /home/rmarr/Projects/opencv/version_4_0_0/OpenCV-master-py3/bin/activate"
+# Virtual Environment Wrapper
+source /usr/local/bin/virtualenvwrapper.sh
+# Virtual Environment Wrapper
+source /usr/local/bin/virtualenvwrapper.sh
+
+#Code Sonar
+export CSONAR=$OPT_ROOT/codesonar/codesonar-5.0p0
+export PATH=$CSONAR/codesonar/bin:$PATH
