@@ -73,6 +73,8 @@ RUN mkdir -p $HOME/.extra_dotfiles
 
 COPY dotfiles/extra_dotfiles/fuzzy $HOME/.extra_dotfiles/.fuzzy
 
+COPY dotfiles/extra_dotfiles/mx_specific $HOME/.extra_dotfiles/.mx_specific
+
 RUN mkdir -p $HOME/profile_config/
 
 COPY customScripts $HOME/profile_config/
