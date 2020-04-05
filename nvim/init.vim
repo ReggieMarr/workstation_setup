@@ -15,8 +15,8 @@ call plug#begin()
         \ 'branch': 'next',
         \ 'do': 'bash install.sh',
         \ }
-
     Plug 'racer-rust/vim-racer'
+    Plug 'ekalinin/Dockerfile.vim'
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
     "Used with lsp for static analysis
@@ -87,31 +87,29 @@ call plug#end()
 " Open files in vertical horizontal split
 set cmdheight=2
 set wrapscan
+"set wrapscan
+set smartcase
 set noswapfile
-set ignorecase
 set nobackup
 set noshowmode
 set noshowcmd
+set mouse=a  " change cursor per mode
+set nowrap
+set nonumber
 let mapleader=" "
 let g:airline_powerline_fonts = 1
 let g:webdevicons_enable_airline_statusline = 1
-let g:airline_theme = 'material'
 set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
-nnoremap <leader>n :execute "vspl" "~/notes/" . strftime('%d_%m_%Y') .".md"<CR>
-
-" Window managing
-nmap <unique> <leader>ts :split<bar>terminal<CR>a
-nmap <unique> <leader>tv :vsplit<bar>terminal<CR>a
-nmap <unique> <leader>te :terminal<CR>a
-tnoremap WW <C-\><C-n>
-tnoremap QQ <C-\><C-n>:q<CR>
-
 
 " Always show statusline
 set laststatus=2
 
 " Use 256 colours (Use this setting only if your terminal supports 256 colours)
+if has("nvim")
+set termguicolors
+else
 set t_Co=256
+endif
 "let g:airline#extensions#tabline#enabled = 1
 
 "set clipboard=unnamedplus
@@ -130,195 +128,18 @@ nnoremap <leader>ev :split $MYVIMRC<cr>
 " source the vimrc file. (Run it):
 nnoremap <leader>sv :source $MYVIMRC<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For Understand
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"command! UMenu silent: exe “!understand -existing -contextmenu %:p -line ” line(‘.’) ” -col ” col(‘.’) ” -text <cword> &” | redraw!
-"map <C-u> :UMenu<CR>
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For vim vista
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! NearestMethodOrFunction() abort
-  return get(b:, 'vista_nearest_method_or_function', '')
-endfunction
-
-set statusline+=%{NearestMethodOrFunction()}
-
-" By default vista.vim never run if you don't call it explicitly.
-"
-" If you want to show the nearest function in your statusline automatically,
-" you can add the following line to your vimrc
-autocmd VimEnter * call vista#RunForNearestMethodOrFunction()
-" How each level is indented and what to prepend.
-" This could make the display more compact or more spacious.
-" e.g., more compact: ["▸ ", ""]
-" Note: this option only works the LSP executives, doesn't work for `:Vista ctags`.
-let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
-
-" Executive used when opening vista sidebar without specifying it.
-" See all the avaliable executives via `:echo g:vista#executives`.
-let g:vista_default_executive = 'ctags'
-
-" Set the executive for some filetypes explicitly. Use the explicit executive
-" instead of the default one for these filetypes when using `:Vista` without
-" specifying the executive.
-let g:vista_executive_for = {
-  \ 'cpp': 'nvim_lsp',
-  \ 'c': 'nvim_lsp',
-  \ 'python': 'nvim_lsp',
-  \ }
-
-" Declare the command including the executable and options used to generate ctags output
-" for some certain filetypes.The file path will be appened to your custom command.
-" For example:
-let g:vista_ctags_cmd = {
-      \ 'haskell': 'hasktags -x -o - -c',
-      \ }
-
-" To enable fzf's preview window set g:vista_fzf_preview.
-" The elements of g:vista_fzf_preview will be passed as arguments to fzf#vim#with_preview()
-" For example:
-"let g:vista_fzf_preview = ['right:50%']
-nnoremap <leader>r :Vista finder<CR>
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For vimspector
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"let g:vimspector_enable_mappings = "HUMAN"
-"nnoremap <Leader> <F5> :call vimspector#Launch()
-"nnoremap <Leader> <F8> :call vimspector#AddFunctionBreakpoint(expand('<cexpr>'))
-"Used in vim not friendly to neovim
-"packadd! vimspector
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For nvimgdb
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"set to 1 to disable
-"let g:loaded_nvimgdb = 0
-" We're going to define single-letter keymaps, so don't try to define them
-" in the terminal window.  The debugger CLI should continue accepting text commands.
-au FileType python nnoremap <leader>DD :GdbStartPDB python3 -m pdb expand('%:t')<CR>
-
-function! NvimGdbNoTKeymaps()
-  tnoremap <silent> <buffer> <esc> <c-\><c-n>
-endfunction
-
-let g:nvimgdb_config_override = {
-  \ 'key_next': 'n',
-  \ 'key_step': 's',
-  \ 'key_finish': 'f',
-  \ 'key_continue': 'c',
-  \ 'key_until': 'u',
-  \ 'key_breakpoint': 'b',
-  \ 'set_tkeymaps': "NvimGdbNoTKeymaps",
-  \ }
-
-let g:vista#renderer#enable_icon = 1
-
-" The default icons can't be suitable for all the filetypes, you can extend it as you wish.
-let g:vista#renderer#icons = {
-\   "function": "\uf794",
-\   "variable": "\uf71b",
-\  }
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For OmniSharp
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-filetype indent plugin on
-let g:OmniSharp_highlight_types = 3
-let g:Omnisharp_server_use_mono=1
-
-
-augroup omnisharp_commands
-    autocmd!
-
-    " Show type information automatically when the cursor stops moving
-    autocmd CursorHold *.cs call OmniSharp#TypeLookupWithoutDocumentation()
-
-    " The following commands are contextual, based on the cursor position.
-    autocmd FileType cs nnoremap <buffer> gd :OmniSharpGotoDefinition<CR>
-    autocmd FileType cs nnoremap <buffer> <Leader>fi :OmniSharpFindImplementations<CR>
-    autocmd FileType cs nnoremap <buffer> <Leader>fs :OmniSharpFindSymbol<CR>
-    autocmd FileType cs nnoremap <buffer> <Leader>fu :OmniSharpFindUsages<CR>
-
-    " Finds members in the current buffer
-    autocmd FileType cs nnoremap <buffer> <Leader>fm :OmniSharpFindMembers<CR>
-
-    autocmd FileType cs nnoremap <buffer> <Leader>fx :OmniSharpFixUsings<CR>
-    autocmd FileType cs nnoremap <buffer> <Leader>tt :OmniSharpTypeLookup<CR>
-    autocmd FileType cs nnoremap <buffer> <Leader>dc :OmniSharpDocumentation<CR>
-    autocmd FileType cs nnoremap <buffer> <C-\> :OmniSharpSignatureHelp<CR>
-    autocmd FileType cs inoremap <buffer> <C-\> <C-o>:OmniSharpSignatureHelp<CR>
-
-    " Navigate up and down by method/property/field
-    autocmd FileType cs nnoremap <buffer> <C-k> :OmniSharpNavigateUp<CR>
-    autocmd FileType cs nnoremap <buffer> <C-j> :OmniSharpNavigateDown<CR>
-
-    " Find all code errors/warnings for the current solution and populate the quickfix window
-    autocmd FileType cs nnoremap <buffer> <Leader>cc :OmniSharpGlobalCodeCheck<CR>
-augroup END
-
-" Contextual code actions (uses fzf, CtrlP or unite.vim when available)
-nnoremap <Leader><Space> :OmniSharpGetCodeActions<CR>
-" Run code actions with text selected in visual mode to extract method
-xnoremap <Leader><Space> :call OmniSharp#GetCodeActions('visual')<CR>
-
-" Rename with dialog
-nnoremap <Leader>nm :OmniSharpRename<CR>
-nnoremap <F2> :OmniSharpRename<CR>
-" Rename without dialog - with cursor on the symbol to rename: `:Rename newname`
-command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
-
-nnoremap <Leader>cf :OmniSharpCodeFormat<CR>
-
-" Start the omnisharp server for the current solution
-nnoremap <Leader>ss :OmniSharpStartServer<CR>
-nnoremap <Leader>sp :OmniSharpStopServer<CR>
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For Marks
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <C-A> 0 :'0
-nnoremap <C-A> 1 :'1
-nnoremap <C-A> 2 :'2
-nnoremap <C-A> 3 :'3
-nnoremap <C-A> 4 :'4
-nnoremap <C-A> 5 :'5
-nnoremap <C-S-[> :''<CR>
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For gutentags
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <C-[> :pop<CR>
-:set statusline+=%{gutentags#statusline()}
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For fugitive
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"nnoremap <leader>  :Gblame<CR>
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For pdb
-""""""""""""""""""" Nvim python environment settings
-"if has('nvim')
-"  let g:python_host_prog='~/.virtualenvs/neovim2/bin/python'
-"  let g:python3_host_prog='~/.virtualenvs/neovim3/bin/python'
-"  " set the virtual env python used to launch the debugger
-"  let g:pudb_python='~/.virtualenvs/poweruser_tools/bin/python'
-"  " set the entry point (script) to use for pudb
-"  let g:pudb_entry_point='~/src/poweruser_tools/test/test_templates.py'
-"  " Unicode symbols work fine (nvim, iterm, tmux, nyovim tested)
-"  let g:pudb_breakpoint_symbol='☠'
-"endif
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For neomake
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:neomake_highlight_columns = 1
+"let g:neomake_highlight_columns = 0
 let g:neomake_highlight_lines = 1
+let g:neomake_place_signs =0
 
-hi NeomakeError gui=undercurl cterm=undercurl
-hi NeomakeWarning gui=underline cterm=underline
+hi NeomakeError gui=undercurl guisp=Red cterm=undercurl ctermfg=1
+hi NeomakeWarning gui=underline guisp=Green cterm=underline ctermfg=1
+highlight clear SignColumn
 au BufWritePost *.rs NeomakeProject cargo
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" For airline
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline#extensions#neomake#enabled = 1
-let g:airline_section_z=''
-let g:airline_skip_empty_sections = 1
+>>>>>>> master
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For picker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -352,17 +173,9 @@ nnoremap <leader>aa :SourcetrailActivateToken<CR>`
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ale options
-let g:ale_linters = {'python': ['flake8', 'pylint']}
-let g:ale_linters_ignore = {'python': ['pylint']}
-"test_system.py:1:0: C0111 (missing-docstring) Missing module docstring
-"test_system.py:20:0: C0103 (invalid-name) Class name "Test_UDP_Sys_IF" doesn't conform to PascalCase naming style
-"test_system.py:20:0: C0111 (missing-docstring) Missing class docstring
-"test_system.py:21:4: C0111 (missing-docstring) Missing method docstring
-"test_system.py:21:4: R0914 (too-many-locals) Too many local variables (16/15)
-"test_system.py:21:4: R0201 (no-self-use) Method could be a function
-"test_system.py:20:0: R0903 (too-few-public-methods) Too few public methods (1/2)
-"test_system.py:47:4: C0103 (invalid-name) Constant name "test" doesn't conform to UPPER_CASE naming style
-let g:ale_python_flake8_options = '--ignore=E722,E129,E501,E302,E265,E241,E305,E402,W503,E221,E203'
+
+let g:ale_disable_lsp = 1
+let g:ale_python_flake8_options = '--ignore=E129,E501,E302,E265,E241,E305,E402,W503'
 let g:ale_python_pylint_options = '-j 0 --max-line-length=120'
 let g:ale_list_window_size = 4
 let g:ale_sign_column_always = 0
@@ -414,6 +227,11 @@ inoreabbrev <expr> __
 "let g:UltiSnipsExpandTrigger="<tab>"  " use <Tab> trigger autocompletion
 "let g:UltiSnipsJumpForwardTrigger="<c-f>"
 "let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For Synatastic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"let g:syntastic_rust_checkers = ['cargo']
+"let g:rust_cargo_avoid_whole_workspace = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Synatastic
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -668,8 +486,6 @@ set hlsearch
 " To aid the colorscheme...
 set t_Co=256
 " Create line numbers on the left side of vi, 6 digits worth
-set nonumber
-"set relativenumber
 "set number
 "set numberwidth=6
 " Set text wrapping at 120 (used to be 80) columns
@@ -722,6 +538,23 @@ set mouse+=v    " Enable visual mode (v)
 set mouse-=c    " Disable mouse in command mode.
 
 
+<<<<<<< HEAD
+=======
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" COLORS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+highlight Folded       ctermfg=7   ctermbg=8
+highlight FoldColumn   ctermfg=7   ctermbg=8
+highlight VertSplit    ctermfg=8   ctermbg=0
+highlight StatusLine   ctermfg=8   ctermbg=2
+highlight StatusLineNC ctermfg=8   ctermbg=60
+highlight LineNr       ctermfg=60
+highlight Comment      ctermfg=60
+highlight Number       ctermfg=202
+highlight Search       ctermfg=1  ctermbg=5
+highlight Todo         ctermfg=1  ctermbg=11
+
+>>>>>>> master
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " AUTO COMMANDS
@@ -734,12 +567,21 @@ if has("autocmd")
 
 " Remove trailing whitepsaces for each line on save.
 " Highlight text that goes past the 121 line limit.
+<<<<<<< HEAD
 "augroup vimrc_autocmds
 "    "autocmd BufReadPre * setlocal foldmethod=syntax
 "    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
 "    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
 "    autocmd BufEnter * match OverLength /\%121v.*/
 "augroup END
+=======
+augroup vimrc_autocmds
+    "autocmd BufReadPre * setlocal foldmethod=syntax
+    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
+    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
+    autocmd BufEnter * match OverLength /\%121v.*/
+augroup END
+>>>>>>> master
 
 if has("autocmd")
 " autocmd BufRead,BufNewFile *.[ch] let fname = expand('<afile>:p:h') . '/types.vim'
@@ -780,7 +622,7 @@ function! UpdateTags()
   let f = expand("%:p")
   let cwd = getcwd()
   let tagfilename = cwd . "/tags"
-  let cmd = 'ctags -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
+  let cmd = 'ctags -R -a -f ' . tagfilename . ' --c++-kinds=+p --fields=+iaS --extra=+q ' . '"' . f . '"'
   call DelTagOfFile(f)
   let resp = system(cmd)
 endfunction
