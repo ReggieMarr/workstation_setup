@@ -44,6 +44,8 @@ call plug#begin()
     Plug 'honza/vim-snippets'
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     Plug 'Shougo/echodoc.vim'
+    " generic interactive finder that uses floating windows
+    Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
     Plug 'scrooloose/nerdcommenter'
     Plug 'davidhalter/jedi-vim'
     "Needs nerdfonts to work properly
@@ -130,6 +132,9 @@ let g:picker_split = 'topleft'
 let g:picker_height = 20
 let g:picker_selector_executable = 'fzf'
 let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
+
+"nmap <unique> <leader>pe <Plug>(PickerEdit)
+"nmap <unique> <leader>pe <Plug>(PickerEdit)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For ale
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
