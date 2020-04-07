@@ -139,7 +139,6 @@ hi NeomakeWarning gui=underline guisp=Green cterm=underline ctermfg=1
 highlight clear SignColumn
 au BufWritePost *.rs NeomakeProject cargo
 let g:airline#extensions#neomake#enabled = 1
->>>>>>> master
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For picker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -538,8 +537,6 @@ set mouse+=v    " Enable visual mode (v)
 set mouse-=c    " Disable mouse in command mode.
 
 
-<<<<<<< HEAD
-=======
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " COLORS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -554,8 +551,6 @@ highlight Number       ctermfg=202
 highlight Search       ctermfg=1  ctermbg=5
 highlight Todo         ctermfg=1  ctermbg=11
 
->>>>>>> master
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " AUTO COMMANDS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -567,21 +562,12 @@ if has("autocmd")
 
 " Remove trailing whitepsaces for each line on save.
 " Highlight text that goes past the 121 line limit.
-<<<<<<< HEAD
 "augroup vimrc_autocmds
 "    "autocmd BufReadPre * setlocal foldmethod=syntax
 "    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
 "    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
 "    autocmd BufEnter * match OverLength /\%121v.*/
 "augroup END
-=======
-augroup vimrc_autocmds
-    "autocmd BufReadPre * setlocal foldmethod=syntax
-    "autocmd BufWinEnter * if &fdm == 'syntax' | setlocal foldmethod=manual | endif
-    autocmd BufEnter * highlight OverLength ctermbg=7 ctermfg=0 guibg=#707070
-    autocmd BufEnter * match OverLength /\%121v.*/
-augroup END
->>>>>>> master
 
 if has("autocmd")
 " autocmd BufRead,BufNewFile *.[ch] let fname = expand('<afile>:p:h') . '/types.vim'
