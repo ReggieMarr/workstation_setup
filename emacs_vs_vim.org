@@ -1,0 +1,20 @@
+#+TITLE: Emacs_vs_vim
+
+* Things I like about neovim (exclusively)
+** Fast and lean
+** Easier to configure
+** Not as stateful
+** Better interoperability with the rest of my system (linux as an ide)
+* Things I don't like about neovim (exclusively)
+** Not as bleeding edge in features as emacs
+
+* Things I like about doom emacs (exclusively)
+** More feature-full (killer apps are as follows)
+*** Projectile
+*** Compile mode
+*** hydras
+*** org mode
+** highly configurable
+* Things I don't like about doom emacs (exclusively)
+** Learning curve
+** +how do I make files+ use C-x C-f and start typing the new file

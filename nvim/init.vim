@@ -8,7 +8,10 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 endif
 
 call plug#begin()
+    "Plug 'dylanaraps/wal.vim'
+    Plug 'NLKNguyen/papercolor-theme'
     Plug 'vim-airline/vim-airline'
+    Plug 'jreybert/vimagit'
     Plug 'neomake/neomake'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'autozimu/LanguageClient-neovim', {
@@ -20,6 +23,7 @@ call plug#begin()
     "
     "Assuming you're using vim-plug: https://github.com/junegunn/vim-plug
     "Used with lsp for static analysis
+    Plug 'vim-ctrlspace/vim-ctrlspace'
     Plug 'cespare/vim-toml'
     Plug 'm-pilia/vim-ccls'
     Plug 'ncm2/ncm2'
@@ -41,6 +45,8 @@ call plug#begin()
     Plug 'reggiemarr/vim-picker', {'branch' : 'feature/rm/custom_fuzzy_file_search'}
     Plug 'aklt/plantuml-syntax'
     Plug 'liuchengxu/vim-clap', { 'do': ':Clap install-binary!' }
+    "Support for gtags
+    "Plug 'jsfaint/gen_tags.vim'
     "Plug 'ludovicchabant/vim-gutentags'
     Plug 'tyru/open-browser.vim'
     "An interactive debugger
@@ -68,7 +74,7 @@ call plug#begin()
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'  "to highlight files in nerdtree
     "This could replace chromatica since it does not do its own analysis it just uses lsp
     Plug 'jackguo380/vim-lsp-cxx-highlight'
-    Plug 'arakashic/chromatica.nvim'
+    "Plug 'arakashic/chromatica.nvim'
     Plug 'majutsushi/tagbar'
     "A fuzzy search alternative to tagbar
     Plug 'liuchengxu/vista.vim'
@@ -77,14 +83,19 @@ call plug#begin()
     Plug 'w0rp/ale'  " python linters
     Plug 'dhruvasagar/vim-table-mode'
     Plug 'ervandew/supertab'
+    " Overriding buffer search mechanism
+    Plug 'haya14busa/incsearch-fuzzy.vim'
+    Plug 'haya14busa/incsearch.vim'
     "For C# integration
     Plug 'OmniSharp/omnisharp-vim'
     "Debugger with DAP support couldnt get stepping through code or evaluating state to work
-    "Plug 'puremourning/vimspector', {'do' : './install_gadget.py --all --disable-tcl'}
+    Plug 'puremourning/vimspector', {'do' : './install_gadget.py --all --disable-tcl --force-enable-python.legacy'}
 call plug#end()
 "For wal, probably not neccessary
 "colorscheme wal
 " Open files in vertical horizontal split
+nnoremap <S-J> :+10<CR>
+nnoremap <S-K> :-10<CR>
 set cmdheight=2
 set wrapscan
 set noswapfile
@@ -99,6 +110,39 @@ let g:airline_theme = 'material'
 set rtp+=$HOME/.local/lib/python2.7/site-packages/powerline/bindings/vim/
 nnoremap <leader>n :execute "vspl" "~/notes/" . strftime('%d_%m_%Y') .".md"<CR>
 
+" CtrlSpace
+let g:CtrlSpaceDefaultMappingKey = "<C-space> "
+let g:CtrlSpaceSearchTiming = 500
+hi CtrlSpaceSearch guifg=#cb4b16 guibg=NONE gui=bold ctermfg=9 ctermbg=NONE term=bold cterm=bold
+if executable("ag")
+    let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+endif
+"if executable("rg")
+"    let g:CtrlSpaceGlobCommand = 'ag -l --color never -g ""'
+"endif
+set nocompatible
+set hidden
+set encoding=utf-8
+
+if has("gui_running")
+    " Settings for MacVim and Inconsolata font
+    let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
+endif
+" dealing with files on pyrite
+function! GetVdd(...)
+    let l:pn = a:1
+    let l:build_dir = 'scp://rmarr@pyrite//home/sw-eng/builds/'
+    :e l:build_dir . l:pn . "/" . l:pn . ".vdd"
+endfunction
+
+function! GetRemoteBuild(...)
+    let l:pn = a:1
+    let l:build_dir = 'scp://rmarr@pyrite//home/sw-eng/builds/'
+    let l:path = l:build_dir . l:pn . "/" . @%
+    :edit l:path
+endfunction
+
+nnoremap <leader>rv :call GetVdd('76507-09-')
 " Window managing
 nmap <unique> <leader>ts :split<bar>terminal<CR>a
 nmap <unique> <leader>tv :vsplit<bar>terminal<CR>a
@@ -134,6 +178,26 @@ nnoremap <leader>sv :source $MYVIMRC<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "command! UMenu silent: exe “!understand -existing -contextmenu %:p -line ” line(‘.’) ” -col ” col(‘.’) ” -text <cword> &” | redraw!
 "map <C-u> :UMenu<CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" For incsearch
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" allows incsearch highlighting for range commands
+cnoremap $t <CR>:t''<CR>
+cnoremap $T <CR>:T''<CR>
+cnoremap $m <CR>:m''<CR>
+cnoremap $M <CR>:M''<CR>
+cnoremap $d <CR>:d<CR>`
+map /  <Plug>(incsearch-forward)
+map ?  <Plug>(incsearch-backward)
+map g/ <Plug>(incsearch-stay)
+set hlsearch
+let g:incsearch#auto_nohlsearch = 1
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For vim vista
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -182,11 +246,10 @@ nnoremap <leader>r :Vista finder<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For vimspector
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"let g:vimspector_enable_mappings = "HUMAN"
-"nnoremap <Leader> <F5> :call vimspector#Launch()
-"nnoremap <Leader> <F8> :call vimspector#AddFunctionBreakpoint(expand('<cexpr>'))
+let g:vimspector_enable_mappings = "HUMAN"
+nnoremap <Leader> <F5> :call vimspector#Launch()
+nnoremap <Leader> <F8> :call vimspector#AddFunctionBreakpoint(expand('<cexpr>'))
 "Used in vim not friendly to neovim
-"packadd! vimspector
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For nvimgdb
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -201,7 +264,7 @@ function! NvimGdbNoTKeymaps()
 endfunction
 
 let g:nvimgdb_config_override = {
-  \ 'key_next': 'n',
+  \ 'key_next': 'N',
   \ 'key_step': 's',
   \ 'key_finish': 'f',
   \ 'key_continue': 'c',
@@ -317,18 +380,28 @@ au BufWritePost *.rs NeomakeProject cargo
 " For airline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline#extensions#neomake#enabled = 1
-let g:airline_section_z=''
+"let g:airline_section_z=''
 let g:airline_skip_empty_sections = 1
+let g:airline#extensions#branch#format = 2
+let g:airline_section_error = ''
+let g:airline_section_warning = ''
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For picker
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:picker_custom_find_executable = 'rg'
-let g:picker_custom_find_flags = '. -n -g "!*.html"'
+"let g:picker_custom_find_flags = '. -n -g "!*.html"'
+let g:picker_custom_find_flags ='. -n $(python3 $SC/print_files.py)'
 "let g:picker_custom_find_flags = '--color never --files'
 let g:picker_split = 'bo'
 let g:picker_height = 40
 let g:picker_selector_executable = 'fzf'
 let g:picker_selector_flags = '--preview="source ~/.config/nvim/vim_string_to_arg.sh; string2arg {}"'
+" alias svf='vi $(python3 $SC/print_files.py -v | fzf)'
+" alias sffind='rg . -n $(python3 $SC/print_files.py) | \
+"     fzf --preview="source $SC/string2arg.sh; string2arg {}"'
+" alias sfsearch='export vfile=$(sffind);echo $(cut -d":" -f1 <<< $vfile)'
+" alias svfsearch='export vfile=$(sffind);vi +$(cut -d":" -f2 <<< $vfile) \
+"     $(cut -d":" -f1 <<< $vfile)'
 " Custom Picker Calls
 nmap <unique> <leader>pe <Plug>(FuzzyPicker)
 nmap <unique> <leader>ps <Plug>(SideFuzzyPicker)
@@ -509,7 +582,11 @@ autocmd BufEnter * call ncm2#enable_for_buffer()
 autocmd BufEnter *.md call ncm2#disable_for_buffer()
 
 " IMPORTANT: :help Ncm2PopupOpen for more information
-nnoremap <leader>T :tabNext<CR>
+nnoremap <leader>N :tabNext<CR>
+nnoremap <leader>N :tabNext<CR>
+tnoremap NN <C-\><C-n>:tabNext<CR>
+nnoremap <leader>T :tabnew<bar>terminal<CR>a
+
 let g:SuperTabMappingForward = '<tab>'
 let g:SuperTabMappingBackward = '<s-tab>'
 let g:SuperTabDefaultCompletionType = "context"
@@ -655,7 +732,11 @@ endif
 
 let g:material_terminal_italics = 1
 "let g:material_theme_style = 'lighter'
+
+"colorscheme wal
 colorscheme material
+"set background=light
+"colorscheme PaperColor
 
 "Convert tabs to spaces
 set expandtab
@@ -798,8 +879,10 @@ nnoremap <S-A-Left> : vertical resize -2 <CR>
 nnoremap <S-A-Right> : vertical resize +2 <CR>
 nnoremap <S-A-Up> : resize +2 <CR>
 nnoremap <S-A-Down> : resize -2 <CR>
-nnoremap <C-\> : vsplit <CR>
-nnoremap <C-S-\> : split <CR>
+nnoremap <C-w><s> :split<CR>
+nnoremap <C-w><v> :split<CR>
+"nnoremap <C-\> : vsplit <CR>
+"nnoremap <C-S-\> : split <CR>
 "nnoremap <C-k-w> : quit <CR>
 
 
@@ -851,6 +934,9 @@ function! Cscope(option, query)
   endfunction
   call fzf#run(opts)
 endfunction
+set nofoldenable
+set foldmethod=indent
+set foldlevel=1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " COLORS
