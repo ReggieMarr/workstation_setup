@@ -144,6 +144,8 @@ endfunction
 
 nnoremap <leader>rv :call GetVdd('76507-09-')
 " Window managing
+nmap <unique> <leader>ws :split<CR>
+nmap <unique> <leader>wv :vsplit<CR>
 nmap <unique> <leader>ts :split<bar>terminal<CR>a
 nmap <unique> <leader>tv :vsplit<bar>terminal<CR>a
 nmap <unique> <leader>te :terminal<CR>a
@@ -242,7 +244,7 @@ let g:vista_ctags_cmd = {
 " The elements of g:vista_fzf_preview will be passed as arguments to fzf#vim#with_preview()
 " For example:
 "let g:vista_fzf_preview = ['right:50%']
-nnoremap <leader>r :Vista finder<CR>
+nnoremap <leader>si :Vista finder<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For vimspector
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -336,13 +338,13 @@ nnoremap <Leader>sp :OmniSharpStopServer<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For Marks
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <C-A> 0 :'0
-nnoremap <C-A> 1 :'1
-nnoremap <C-A> 2 :'2
-nnoremap <C-A> 3 :'3
-nnoremap <C-A> 4 :'4
-nnoremap <C-A> 5 :'5
-nnoremap <C-S-[> :''<CR>
+"nnoremap <C-A> 0 :'0
+"nnoremap <C-A> 1 :'1
+"nnoremap <C-A> 2 :'2
+"nnoremap <C-A> 3 :'3
+"nnoremap <C-A> 4 :'4
+"nnoremap <C-A> 5 :'5
+"nnoremap <C-S-[> :''<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " For gutentags
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -541,9 +543,9 @@ nnoremap <silent> <C-h> :call fzf#run({
 nnoremap <silent> <C-p> :call fzf#run({
     \ 'source' : 'fd',
     \ 'sink':  'e', 'bottom': '40%'})<CR>
-nnoremap <leader>f :Files<CR>
-nnoremap <leader>g :Rg<CR>
-nnoremap <leader><S-g> :Clap blines<CR>
+nnoremap <leader>pf :Files<CR>
+nnoremap <leader>sp :Rg<CR>
+nnoremap <leader>sb :Clap blines<CR>
 nnoremap <C-g> :Clap grep<CR>
 nnoremap <leader>fs :Clap filer<CR>
 "nnoremap <C-p> :Files<Cr>
@@ -586,6 +588,7 @@ nnoremap <leader>N :tabNext<CR>
 nnoremap <leader>N :tabNext<CR>
 tnoremap NN <C-\><C-n>:tabNext<CR>
 nnoremap <leader>T :tabnew<bar>terminal<CR>a
+nnoremap <leader>e :edit!<CR>
 
 let g:SuperTabMappingForward = '<tab>'
 let g:SuperTabMappingBackward = '<s-tab>'
@@ -737,6 +740,19 @@ let g:material_terminal_italics = 1
 colorscheme material
 "set background=light
 "colorscheme PaperColor
+"let g:PaperColor_Theme_Options = {
+"  \   'language': {
+"  \     'python': {
+"  \       'highlight_builtins' : 1
+"  \     },
+"  \     'cpp': {
+"  \       'highlight_standard_library': 1
+"  \     },
+"  \     'c': {
+"  \       'highlight_builtins' : 1
+"  \     }
+"  \   }
+"  \ }
 
 "Convert tabs to spaces
 set expandtab
@@ -953,4 +969,4 @@ set foldlevel=1
 "highlight Todo         ctermfg=0  ctermbg=11
 
 " Invoke command. 'g' is for call graph, kinda.
-"nnoremap <silent> <Leader>g :call Cscope('3', expand('<cword>'))<CR>
+"noremap <silent> <Leader>g :call Cscope('3', expand('<cword>'))<CR>

@@ -12,6 +12,6 @@ string2arg() {
     fi
     let max="arg_linenum+$max_offset"
     bat --color=always --highlight-line $arg_linenum --style=header,grid,numbers\
-       --theme="Monokai Extended Light" --line-range $min:$max $arg_filename;
+       --theme="OneHalfDark" --line-range $min:$max $arg_filename;
     echo "+$arg_linenum $arg_filename"
 }
